@@ -1,14 +1,23 @@
 // src/components/FilterSidebar.jsx
 import React from 'react';
 
-// O componente recebe a categoria ativa e uma função para alterá-la (onCategoryChange)
-function FilterSidebar({ activeCategory, onCategoryChange }) {
+function FilterSidebar({
+  activeCategory, onCategoryChange,
+  availableColors, selectedColor, onColorChange,
+  selectedSize, onSizeChange,
+  onClearFilters
+}) {
   const categories = ['todos', 'top', 'legging', 'shorts', 'camiseta', 'jaqueta'];
+  const sizes = ['P', 'M', 'G', 'GG'];
 
   return (
     <aside className="w-full md:w-1/4 lg:w-1/5">
-      <h2 className="text-xl font-bold mb-4">Filtros</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Filtros</h2>
+        <button onClick={onClearFilters} className="text-sm text-cyan-600 hover:underline">Limpar Filtros</button>
+      </div>
       <div className="space-y-6">
+        {/* Filtro de Categoria */}
         <div>
           <h3 className="font-semibold mb-2">Categorias</h3>
           <ul className="space-y-1 text-gray-600">
@@ -25,14 +34,35 @@ function FilterSidebar({ activeCategory, onCategoryChange }) {
           </ul>
         </div>
 
-        {/* Futuramente adicionaremos os filtros de Tamanho e Cor aqui */}
+        {/* Filtro de Tamanho */}
         <div>
-          <h3 className="font-semibold mb-2 text-gray-400">Tamanho</h3>
-          <div className="flex flex-wrap gap-2 opacity-50 cursor-not-allowed">
-            <button disabled className="border rounded-md px-3 py-1 text-sm">P</button>
-            <button disabled className="border rounded-md px-3 py-1 text-sm">M</button>
-            <button disabled className="border rounded-md px-3 py-1 text-sm">G</button>
-            <button disabled className="border rounded-md px-3 py-1 text-sm">GG</button>
+          <h3 className="font-semibold mb-2">Tamanho</h3>
+          <div className="flex flex-wrap gap-2">
+            {sizes.map(size => (
+              <button
+                key={size}
+                onClick={() => onSizeChange(size)}
+                className={`border rounded-md px-3 py-1 text-sm transition-colors ${selectedSize === size ? 'bg-gray-900 text-white border-gray-900' : 'hover:bg-gray-200'}`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Filtro de Cor */}
+        <div>
+          <h3 className="font-semibold mb-2">Cor</h3>
+          <div className="flex flex-wrap gap-2">
+            {availableColors.map(color => (
+              <button
+                key={color.nome}
+                onClick={() => onColorChange(color.nome)}
+                title={color.nome}
+                className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 ${selectedColor === color.nome ? 'ring-2 ring-offset-2 ring-cyan-500' : ''}`}
+                style={{ backgroundColor: color.hex }}
+              />
+            ))}
           </div>
         </div>
       </div>
