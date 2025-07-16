@@ -1,14 +1,17 @@
 // src/components/ProductForm.jsx
 import React, { useState } from 'react';
+import CustomCurrencyInput from './CustomCurrencyInput';
 
-function ProductForm({ onSubmit, onCancel, initialData = {} }) {
+function ProductForm({ onSubmit, onCancel, initialData = {}, allNames = [], allMaterials = [], allKeywords = [], allCategories = [] }) {
+
   const [formData, setFormData] = useState({
     name: initialData.name || '',
     categoria: initialData.categoria || 'top',
-    price: initialData.price || 0,
+    price: (initialData.price * 100) || 0,
     image: initialData.image || '',
     material: initialData.material || '',
     avaliacao: initialData.avaliacao || 0,
+    description: initialData.description || '', 
     estoque: initialData.estoque || { P: 0, M: 0, G: 0, GG: 0 },
     palavras_chave: initialData.palavras_chave || ''
   });
@@ -51,51 +54,52 @@ function ProductForm({ onSubmit, onCancel, initialData = {} }) {
     setNewSizeQty(0);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
+ const handleSubmit = (e) => {
+  e.preventDefault();
+  const dataToSubmit = {
+    ...formData,
+    price: formData.price / 100,
   };
+  onSubmit(dataToSubmit);
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Nome e Categoria */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
-          label="Nome do Produto"
-          name="name"
-          type="text"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <div>
-          <label className="block text-sm font-medium">Categoria</label>
-          <select
-            name="categoria"
-            value={formData.categoria}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-          >
-            {['top', 'legging', 'shorts', 'camiseta', 'jaqueta'].map((cat) => (
-              <option key={cat} value={cat}>
-                {cat[0].toUpperCase() + cat.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
+    label="Nome do Produto"
+    name="name"
+    type="text"
+    value={formData.name}
+    onChange={handleChange}
+    required
+    list="product-names"
+    suggestions={allNames}
+/>
+        <FormField
+    label="Categoria"
+    name="categoria"
+    type="text"
+    value={formData.categoria}
+    onChange={handleChange}
+    required
+    list="product-categories"
+    suggestions={allCategories}
+/>
       </div>
 
       {/* Preço e Avaliação */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          label="Preço (R$)"
-          name="price"
-          type="number"
-          value={formData.price}
-          onChange={handleChange}
-          step="0.01"
-          required
-        />
+        <div>
+    <label className="block text-sm font-medium">Preço (R$)</label>
+    <CustomCurrencyInput
+        valueInCents={formData.price}
+        onValueChange={(newCents) => {
+            setFormData(prev => ({ ...prev, price: newCents }));
+        }}
+    />
+</div>
         <FormField
           label="Avaliação (0 a 5)"
           name="avaliacao"
@@ -118,23 +122,36 @@ function ProductForm({ onSubmit, onCancel, initialData = {} }) {
         required
       />
 
+      <FormField
+    label="Descrição do Produto"
+    name="description"
+    as="textarea" // Usaremos um FormField modificado
+    value={formData.description}
+    onChange={handleChange}
+    rows="4" // Define a altura do campo
+/>
+
       {/* Material */}
       <FormField
-        label="Material"
-        name="material"
-        type="text"
-        value={formData.material}
-        onChange={handleChange}
-      />
+    label="Material"
+    name="material"
+    type="text"
+    value={formData.material}
+    onChange={handleChange}
+    list="product-materials"
+    suggestions={allMaterials}
+/>
 
       {/* Palavras-chave */}
       <FormField
-        label="Palavras-chave (separadas por vírgula)"
-        name="palavras_chave"
-        type="text"
-        value={formData.palavras_chave}
-        onChange={handleChange}
-      />
+    label="Palavras-chave (separadas por vírgula)"
+    name="palavras_chave"
+    type="text"
+    value={formData.palavras_chave}
+    onChange={handleChange}
+    list="product-keywords"
+    suggestions={allKeywords}
+/>
 
       {/* Estoque */}
       <div>
@@ -208,20 +225,19 @@ function ProductForm({ onSubmit, onCancel, initialData = {} }) {
 }
 
 // 🔥 Componente reutilizável para campos de formulário
-function FormField({ label, name, type, value, onChange, ...rest }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full mt-1 p-2 border rounded-md"
-        {...rest}
-      />
-    </div>
-  );
+function FormField({ label, name, as = 'input', ...rest }) {
+    const Component = as; // 'as' pode ser 'input' ou 'textarea'
+    return (
+        <div>
+            <label className="block text-sm font-medium">{label}</label>
+            <Component
+                name={name}
+                className="w-full mt-1 p-2 border rounded-md"
+                {...rest}
+            />
+        </div>
+    );
 }
+
 
 export default ProductForm;

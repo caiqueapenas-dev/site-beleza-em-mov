@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Search, ShoppingCart, Menu } from 'lucide-react';
 
 // O Header agora recebe o termo da busca (searchTerm) e a função para alterá-lo (onSearchChange)
-function LojaHeader({ searchTerm, onSearchChange, cartItemCount }) {
+function LojaHeader({ searchTerm, onSearchChange, cartItemCount, onCartClick }) {
 
 
   return (
@@ -28,8 +28,8 @@ function LojaHeader({ searchTerm, onSearchChange, cartItemCount }) {
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <button id="cart-button" className="relative hover:text-cyan-600 transition-colors">
-            <ShoppingCart />
+          <button onClick={onCartClick} id="cart-button" className="relative hover:text-cyan-600 transition-colors">
+    <ShoppingCart />
            <span id="cart-count" className="absolute -top-2 -right-2 ...">
     {cartItemCount}
 </span>

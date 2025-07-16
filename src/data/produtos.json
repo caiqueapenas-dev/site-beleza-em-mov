@@ -10,14 +10,16 @@
     "image": "https://images.pexels.com/photos/7880136/pexels-photo-7880136.jpeg",
     "material": "Poliamida com Elastano",
     "avaliacao": 4.5,
+    "description": "Nossa legging de compressão oferece suporte e conforto incomparáveis. Feita com Poliamida e Elastano de alta qualidade, ela se ajusta perfeitamente ao corpo, ideal para treinos intensos e uso diário.",
     "estoque": {
       "P": 10,
       "M": 10,
-      "G": 10
+      "G": 10,
+      "GG": 0
     },
     "cores": [
-        {"nome": "Preto", "hex": "#000000"},
-        {"nome": "Azul Marinho", "hex": "#000080"}
+      {"nome": "Preto", "hex": "#000000"},
+      {"nome": "Azul Marinho", "hex": "#000080"}
     ],
     "palavras_chave": "legging, calça, academia, treino, feminino, compressão"
   },
@@ -32,6 +34,7 @@
     "image": "https://images.pexels.com/photos/8353997/pexels-photo-8353997.jpeg",
     "material": "Poliéster",
     "avaliacao": 5,
+    "description": "A Camiseta Dry-Fit masculina foi desenvolvida para treinos de alta intensidade e corridas. O tecido em Poliéster garante leveza, respirabilidade e rápida absorção de suor para manter você seco e confortável.",
     "estoque": {
       "P": 10,
       "M": 10,
@@ -39,8 +42,8 @@
       "GG": 10
     },
     "cores": [
-        {"nome": "Branco", "hex": "#FFFFFF"},
-        {"nome": "Cinza", "hex": "#808080"}
+      {"nome": "Branco", "hex": "#FFFFFF"},
+      {"nome": "Cinza", "hex": "#808080"}
     ],
     "palavras_chave": "camiseta, camisa, dry-fit, corrida, masculino"
   },
@@ -55,8 +58,12 @@
     "image": "https://images.pexels.com/photos/1089164/pexels-photo-1089164.jpeg",
     "material": "Suplex",
     "avaliacao": 4,
+    "description": "Este top esportivo feminino é ideal para treinos e atividades de alto impacto. Fabricado em Suplex de alta compressão, oferece sustentação, conforto e liberdade de movimentos sem abrir mão do estilo.",
     "estoque": {
-      "M": 10
+      "P": 0,
+      "M": 10,
+      "G": 0,
+      "GG": 0
     },
     "palavras_chave": "top, sutiã, academia, treino, feminino, sustentação"
   },
@@ -71,9 +78,12 @@
     "image": "https://images.pexels.com/photos/29205206/pexels-photo-29205206.jpeg",
     "material": "Tactel",
     "avaliacao": 4.8,
+    "description": "O Shorts de Corrida masculino BeM Performance combina leveza e resistência. Produzido em Tactel, ele garante rápida secagem e excelente ventilação, perfeito para corridas e treinos ao ar livre.",
     "estoque": {
       "P": 10,
-      "G": 10
+      "M": 0,
+      "G": 10,
+      "GG": 0
     },
     "palavras_chave": "shorts, bermuda, corrida, treino, masculino"
   }
