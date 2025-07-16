@@ -1,7 +1,12 @@
 // src/App.jsx
 import React, { useEffect } from 'react';
 // Importe o BrowserRouter como Router
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -11,6 +16,7 @@ import LojaPage from './pages/LojaPage';
 import SobrePage from './pages/SobrePage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import CheckoutPage from './pages/CheckoutPage'; // ADICIONE este import
 
 // Componentes
 import ProtectedRoute from './components/ProtectedRoute';
@@ -34,9 +40,11 @@ function AppLayout() {
 
       {/* Rota Protegida */}
       <Route
-    path="/admin/dashboard"
-    element={<AdminDashboardPage />} // Removido o <ProtectedRoute>
-/>
+        path="/admin/dashboard"
+        element={<AdminDashboardPage />} // Removido o <ProtectedRoute>
+      />
+
+      <Route path="/checkout" element={<CheckoutPage />} />
     </Routes>
   );
 }

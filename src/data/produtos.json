@@ -5,7 +5,7 @@
     "marca": "BeM Fit",
     "categoria": "legging",
     "genero": "Feminino",
-    "price": 189.90,
+    "price": 189.9,
     "desconto_percentual": null,
     "image": "https://images.pexels.com/photos/7880136/pexels-photo-7880136.jpeg",
     "material": "Poliamida com Elastano",
@@ -18,8 +18,8 @@
       "GG": 0
     },
     "cores": [
-      {"nome": "Preto", "hex": "#000000"},
-      {"nome": "Azul Marinho", "hex": "#000080"}
+      { "nome": "Preto", "hex": "#000000" },
+      { "nome": "Azul Marinho", "hex": "#000080" }
     ],
     "palavras_chave": "legging, calça, academia, treino, feminino, compressão"
   },
@@ -29,7 +29,7 @@
     "marca": "BeM Performance",
     "categoria": "camiseta",
     "genero": "Masculino",
-    "price": 129.90,
+    "price": 129.9,
     "desconto_percentual": 0,
     "image": "https://images.pexels.com/photos/8353997/pexels-photo-8353997.jpeg",
     "material": "Poliéster",
@@ -42,8 +42,8 @@
       "GG": 10
     },
     "cores": [
-      {"nome": "Branco", "hex": "#FFFFFF"},
-      {"nome": "Cinza", "hex": "#808080"}
+      { "nome": "Branco", "hex": "#FFFFFF" },
+      { "nome": "Cinza", "hex": "#808080" }
     ],
     "palavras_chave": "camiseta, camisa, dry-fit, corrida, masculino"
   },
@@ -53,7 +53,7 @@
     "marca": "BeM Fit",
     "categoria": "top",
     "genero": "Feminino",
-    "price": 99.90,
+    "price": 99.9,
     "desconto_percentual": 0,
     "image": "https://images.pexels.com/photos/1089164/pexels-photo-1089164.jpeg",
     "material": "Suplex",
@@ -73,7 +73,7 @@
     "marca": "BeM Performance",
     "categoria": "shorts",
     "genero": "Masculino",
-    "price": 119.90,
+    "price": 119.9,
     "desconto_percentual": 15,
     "image": "https://images.pexels.com/photos/29205206/pexels-photo-29205206.jpeg",
     "material": "Tactel",

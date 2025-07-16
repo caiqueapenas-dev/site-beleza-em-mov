@@ -8,213 +8,315 @@ import ProductForm from '../components/ProductForm';
 import Notification from '../components/Notification';
 
 function AdminDashboardPage() {
-    // --- ESTADOS DO COMPONENTE ---
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-    
-    const [products, setProducts] = useState([]);
-    const [requests, setRequests] = useState([]);
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
-    
-    const [activeTab, setActiveTab] = useState('products');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [notification, setNotification] = useState({ message: '', visible: false });
+  // --- ESTADOS DO COMPONENTE ---
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-    // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
-    
-    // Efeito para carregar dados do LocalStorage na inicialização
-    useEffect(() => {
-        const savedProducts = localStorage.getItem('products');
-        setProducts(savedProducts ? JSON.parse(savedProducts) : productsData);
+  const [products, setProducts] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
-        const savedRequests = localStorage.getItem('productRequests');
-        setRequests(savedRequests ? JSON.parse(savedRequests) : []);
-        
-        setIsDataLoaded(true);
-    }, []);
+  const [activeTab, setActiveTab] = useState('products');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [notification, setNotification] = useState({
+    message: '',
+    visible: false,
+  });
 
-    // Efeito para salvar produtos no LocalStorage sempre que a lista mudar
-    useEffect(() => {
-        if (isDataLoaded) {
-            localStorage.setItem('products', JSON.stringify(products));
-        }
-    }, [products, isDataLoaded]);
+  // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
 
-    // Efeito para salvar solicitações no LocalStorage sempre que a lista mudar
-    useEffect(() => {
-        if (isDataLoaded) {
-            localStorage.setItem('productRequests', JSON.stringify(requests));
-        }
-    }, [requests, isDataLoaded]);
+  // Efeito para carregar dados do LocalStorage na inicialização
+  useEffect(() => {
+    const savedProducts = localStorage.getItem('products');
+    setProducts(savedProducts ? JSON.parse(savedProducts) : productsData);
 
+    const savedRequests = localStorage.getItem('productRequests');
+    setRequests(savedRequests ? JSON.parse(savedRequests) : []);
 
-    // --- FUNÇÕES DE LÓGICA ---
+    setIsDataLoaded(true);
+  }, []);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/admin');
-    };
+  // Efeito para salvar produtos no LocalStorage sempre que a lista mudar
+  useEffect(() => {
+    if (isDataLoaded) {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+  }, [products, isDataLoaded]);
 
-    const showNotification = (message) => {
-        setNotification({ message, visible: true });
-        setTimeout(() => {
-            setNotification(prev => ({ ...prev, visible: false }));
-        }, 3000);
-    };
-    
-    // ✅ NOVA FUNÇÃO: Marcar uma solicitação como vista
-    const handleMarkRequestAsSeen = (requestId) => {
-        const updatedRequests = requests.map(req =>
-            req.id === requestId ? { ...req, seen: true } : req
-        );
-        setRequests(updatedRequests);
-        showNotification('Solicitação marcada como vista!');
-    };
+  // Efeito para salvar solicitações no LocalStorage sempre que a lista mudar
+  useEffect(() => {
+    if (isDataLoaded) {
+      localStorage.setItem('productRequests', JSON.stringify(requests));
+    }
+  }, [requests, isDataLoaded]);
 
-    // ... (outras funções como formatStock, handleOpenModals, etc. continuam iguais)
-    const formatStock = (stockObject) => {
-        if (!stockObject) return 'N/A';
-        return Object.entries(stockObject)
-            .map(([size, quantity]) => `${size.toUpperCase()}: ${quantity}`)
-            .join(' | ');
-    };
+  // --- FUNÇÕES DE LÓGICA ---
 
-    const handleOpenAddModal = () => {
-        setEditingProduct(null);
-        setIsModalOpen(true);
-    };
-    
-    const handleOpenEditModal = (product) => {
-        setEditingProduct(product);
-        setIsModalOpen(true);
-    };
+  const handleLogout = () => {
+    logout();
+    navigate('/admin');
+  };
 
-    const handleSaveProduct = (formData) => {
-        if (editingProduct) {
-            setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...formData, id: editingProduct.id } : p));
-        } else {
-            setProducts(prev => [...prev, { ...formData, id: Date.now(), avaliacao: formData.avaliacao || 0 }]);
-        }
-        setIsModalOpen(false);
-        showNotification('Produto salvo com sucesso!');
-    };
+  const showNotification = (message) => {
+    setNotification({ message, visible: true });
+    setTimeout(() => {
+      setNotification((prev) => ({ ...prev, visible: false }));
+    }, 3000);
+  };
 
-    const handleDeleteProduct = (productIdToDelete) => {
-        if (window.confirm('Tem certeza?')) {
-            setProducts(prev => prev.filter(p => p.id !== productIdToDelete));
-            showNotification('Produto removido com sucesso!'); 
-        }
-    };
-    
-    // --- PREPARAÇÃO DE DADOS PARA COMPONENTES FILHOS ---
-
-    // ✅ DADOS PARA SUGESTÕES NO FORMULÁRIO
-    const allNames = [...new Set(products.map(p => p.name))];
-    const allMaterials = [...new Set(products.map(p => p.material).filter(Boolean))];
-    const allKeywords = [...new Set(products.flatMap(p => p.palavras_chave ? p.palavras_chave.split(',').map(k => k.trim()) : []))];
-    const allCategories = [...new Set(products.map(p => p.categoria).filter(Boolean))];
-
-    // ✅ CÁLCULO PARA O BADGE DE NOTIFICAÇÃO
-    const unseenRequestsCount = requests.filter(req => !req.seen).length;
-
-
-    // --- RENDERIZAÇÃO DO COMPONENTE ---
-    return (
-        <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Painel de Controle</h1>
-                    <p className="text-gray-500">Gerencie seus produtos e estoques.</p>
-                </div>
-                <div className="flex items-center gap-4 mt-4 md:mt-0">
-                    <span className="text-gray-600">Bem-vindo, a@!</span>
-                    <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Sair</button>
-                </div>
-            </header>
-
-            {/* Abas de Navegação */}
-            <div className="border-b border-gray-200">
-                <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-                    <button onClick={() => setActiveTab('products')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'products' ? 'border-cyan-500 text-cyan-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                        Produtos
-                    </button>
-                    <button onClick={() => setActiveTab('requests')} className={`relative whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'requests' ? 'border-cyan-500 text-cyan-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                        Solicitações
-                        {unseenRequestsCount > 0 && (
-                            <span className="absolute top-3 -right-3 ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                {unseenRequestsCount}
-                            </span>
-                        )}
-                    </button>
-                </nav>
-            </div>
-            
-            {/* Conteúdo da Aba de Produtos */}
-            {activeTab === 'products' && (
-                <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-semibold">Produtos Cadastrados</h2>
-                        <button onClick={handleOpenAddModal} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar Novo Produto</button>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-100"><tr><th className="p-3 font-semibold">Produto</th><th className="p-3 font-semibold">Categoria</th><th className="p-3 font-semibold">Preço</th><th className="p-3 font-semibold">Estoque</th><th className="p-3 font-semibold">Ações</th></tr></thead>
-                            <tbody>
-                                {products.map(product => (
-                                    <tr key={product.id} className="border-b hover:bg-gray-50">
-                                        <td className="p-3">{product.name}</td>
-                                        <td className="p-3 capitalize">{product.categoria}</td>
-                                        <td className="p-3">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</td>
-                                        <td className="p-3 whitespace-nowrap">{formatStock(product.estoque)}</td>
-                                        <td className="p-3"><button onClick={() => handleOpenEditModal(product)} className="text-blue-600 hover:underline mr-4">Editar</button><button onClick={() => handleDeleteProduct(product.id)} className="text-red-600 hover:underline">Remover</button></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            {/* Conteúdo da Aba de Solicitações */}
-            {activeTab === 'requests' && (
-                <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
-                    <h2 className="text-2xl font-semibold mb-4">Solicitações de Clientes</h2>
-                    {requests.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-100"><tr><th className="p-3 font-semibold">Produto</th><th className="p-3 font-semibold">Tamanho</th><th className="p-3 font-semibold">Data</th><th className="p-3 font-semibold">Ações</th></tr></thead>
-                                <tbody>
-                                    {requests.map(req => (
-                                        <tr key={req.id} className={`border-b transition-opacity ${req.seen ? 'opacity-50' : ''}`}>
-                                            <td className="p-3">{req.productName}</td>
-                                            <td className="p-3 font-bold">{req.requestedSize}</td>
-                                            <td className="p-3">{new Date(req.timestamp).toLocaleDateString('pt-BR')}</td>
-                                            <td className="p-3">{!req.seen && (<button onClick={() => handleMarkRequestAsSeen(req.id)} className="text-green-600 hover:underline text-sm font-semibold">Marcar como visto</button>)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (<p className="text-gray-500">Nenhuma solicitação no momento.</p>)}
-                </div>
-            )}
-
-            <AdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}>
-                <ProductForm
-                    onSubmit={handleSaveProduct}
-                    initialData={editingProduct || {}}
-                    onCancel={() => setIsModalOpen(false)}
-                    allNames={allNames}
-                    allMaterials={allMaterials}
-                    allKeywords={allKeywords}
-                    allCategories={allCategories}
-                />
-            </AdminModal>
-
-            <Notification message={notification.message} visible={notification.visible} />
-        </div>
+  // ✅ NOVA FUNÇÃO: Marcar uma solicitação como vista
+  const handleMarkRequestAsSeen = (requestId) => {
+    const updatedRequests = requests.map((req) =>
+      req.id === requestId ? { ...req, seen: true } : req,
     );
+    setRequests(updatedRequests);
+    // A linha abaixo é opcional, mas recomendada para persistir a mudança
+    localStorage.setItem('productRequests', JSON.stringify(updatedRequests));
+    showNotification('Solicitação marcada como vista!');
+  };
+
+  // ... (outras funções como formatStock, handleOpenModals, etc. continuam iguais)
+  const formatStock = (stockObject) => {
+    if (!stockObject) return 'N/A';
+    return Object.entries(stockObject)
+      .map(([size, quantity]) => `${size.toUpperCase()}: ${quantity}`)
+      .join(' | ');
+  };
+
+  const handleOpenAddModal = () => {
+    setEditingProduct(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (product) => {
+    setEditingProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProduct = (formData) => {
+    if (editingProduct) {
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === editingProduct.id
+            ? { ...p, ...formData, id: editingProduct.id }
+            : p,
+        ),
+      );
+    } else {
+      setProducts((prev) => [
+        ...prev,
+        { ...formData, id: Date.now(), avaliacao: formData.avaliacao || 0 },
+      ]);
+    }
+    setIsModalOpen(false);
+    showNotification('Produto salvo com sucesso!');
+  };
+
+  const handleDeleteProduct = (productIdToDelete) => {
+    if (window.confirm('Tem certeza?')) {
+      setProducts((prev) => prev.filter((p) => p.id !== productIdToDelete));
+      showNotification('Produto removido com sucesso!');
+    }
+  };
+
+  // --- PREPARAÇÃO DE DADOS PARA COMPONENTES FILHOS ---
+
+  // ✅ DADOS PARA SUGESTÕES NO FORMULÁRIO
+  const allNames = [...new Set(products.map((p) => p.name))];
+  const allMaterials = [
+    ...new Set(products.map((p) => p.material).filter(Boolean)),
+  ];
+  const allKeywords = [
+    ...new Set(
+      products.flatMap((p) =>
+        p.palavras_chave
+          ? p.palavras_chave.split(',').map((k) => k.trim())
+          : [],
+      ),
+    ),
+  ];
+  const allCategories = [
+    ...new Set(products.map((p) => p.categoria).filter(Boolean)),
+  ];
+
+  // ✅ CÁLCULO PARA O BADGE DE NOTIFICAÇÃO
+  const unseenRequestsCount = requests.filter((req) => !req.seen).length;
+
+  // --- RENDERIZAÇÃO DO COMPONENTE ---
+  return (
+    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Painel de Controle
+          </h1>
+          <p className="text-gray-500">Gerencie seus produtos e estoques.</p>
+        </div>
+        <div className="flex items-center gap-4 mt-4 md:mt-0">
+          <span className="text-gray-600">Bem-vindo, a@!</span>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
+          >
+            Sair
+          </button>
+        </div>
+      </header>
+
+      {/* Abas de Navegação */}
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab('products')}
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'products' ? 'border-cyan-500 text-cyan-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          >
+            Produtos
+          </button>
+          <button
+            onClick={() => setActiveTab('requests')}
+            className={`relative whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'requests' ? 'border-cyan-500 text-cyan-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+          >
+            Solicitações
+            {unseenRequestsCount > 0 && (
+              <span className="absolute top-3 -right-3 ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                {unseenRequestsCount}
+              </span>
+            )}
+          </button>
+        </nav>
+      </div>
+
+      {/* Conteúdo da Aba de Produtos */}
+      {activeTab === 'products' && (
+        <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold">Produtos Cadastrados</h2>
+            <button
+              onClick={handleOpenAddModal}
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg"
+            >
+              Adicionar Novo Produto
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-3 font-semibold">Produto</th>
+                  <th className="p-3 font-semibold">Categoria</th>
+                  <th className="p-3 font-semibold">Preço</th>
+                  <th className="p-3 font-semibold">Estoque</th>
+                  <th className="p-3 font-semibold">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product.id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">{product.name}</td>
+                    <td className="p-3 capitalize">{product.categoria}</td>
+                    <td className="p-3">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(product.price)}
+                    </td>
+                    <td className="p-3 whitespace-nowrap">
+                      {formatStock(product.estoque)}
+                    </td>
+                    <td className="p-3">
+                      <button
+                        onClick={() => handleOpenEditModal(product)}
+                        className="text-blue-600 hover:underline mr-4"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Remover
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Conteúdo da Aba de Solicitações */}
+      {activeTab === 'requests' && (
+        <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
+          <h2 className="text-2xl font-semibold mb-4">
+            Solicitações de Clientes
+          </h2>
+          {requests.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-3 font-semibold">Produto</th>
+                    <th className="p-3 font-semibold">Tamanho</th>
+                    <th className="p-3 font-semibold">Data</th>
+                    <th className="p-3 font-semibold">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((req) => (
+                    <tr
+                      key={req.id}
+                      className={`border-b transition-opacity ${req.seen ? 'opacity-50' : ''}`}
+                    >
+                      <td className="p-3">{req.productName}</td>
+                      <td className="p-3 font-bold">{req.requestedSize}</td>
+                      <td className="p-3">
+                        {new Date(req.timestamp).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="p-3">
+                        {!req.seen && (
+                          <button
+                            onClick={() => handleMarkRequestAsSeen(req.id)}
+                            className="text-green-600 hover:underline text-sm font-semibold"
+                          >
+                            Marcar como visto
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-gray-500">Nenhuma solicitação no momento.</p>
+          )}
+        </div>
+      )}
+
+      <AdminModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}
+      >
+        <ProductForm
+          onSubmit={handleSaveProduct}
+          initialData={editingProduct || {}}
+          onCancel={() => setIsModalOpen(false)}
+          allNames={allNames}
+          allMaterials={allMaterials}
+          allKeywords={allKeywords}
+          allCategories={allCategories}
+        />
+      </AdminModal>
+
+      <Notification
+        message={notification.message}
+        visible={notification.visible}
+      />
+    </div>
+  );
 }
 
 export default AdminDashboardPage;
