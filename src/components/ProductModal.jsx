@@ -11,6 +11,8 @@ const StarRating = ({ rating }) => {
 function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
 
     const [selectedSize, setSelectedSize] = useState(null);
+const [customSize, setCustomSize] = useState(''); // ADICIONE esta linha
+
 
     if (!product) {
         return null;
@@ -85,9 +87,31 @@ function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
             }
         })}
     </div>
-    <p className="text-xs text-gray-500 mt-2">Não encontrou o seu tamanho? Clique em "Solicitar".</p>
 </div>
-<p className="text-xs text-gray-500 mt-2">Não encontrou o seu tamanho? Clique em "Solicitar".</p>
+<p className="text-sm text-cyan-700 font-semibold mt-2">Não encontrou o seu tamanho? Clique em "Solicitar".</p>
+<div className="mt-4 pt-4 border-t">
+    <label className="text-sm font-semibold text-gray-600 mb-2 block">Solicitar outro tamanho:</label>
+    <div className="flex gap-2">
+        <input
+            type="text"
+            value={customSize}
+            onChange={(e) => setCustomSize(e.target.value.toUpperCase())}
+            placeholder="Ex: PP, XG"
+            className="w-full p-2 border rounded-md"
+        />
+        <button
+            onClick={() => {
+                if (!customSize) return; // Não faz nada se o campo estiver vazio
+                onRequestSize(product, customSize);
+                setCustomSize(''); // Limpa o campo após a solicitação
+            }}
+            disabled={!customSize} // Desabilita o botão se o campo estiver vazio
+            className="px-4 py-2 bg-cyan-600 text-white font-bold rounded-md whitespace-nowrap hover:bg-cyan-700 disabled:bg-gray-400"
+        >
+            Solicitar
+        </button>
+    </div>
+</div>
                         </div>
                         <div>
                             <h3 className="text-sm font-semibold text-gray-600 mb-2">DESCRIÇÃO</h3>

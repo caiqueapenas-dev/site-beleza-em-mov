@@ -11,7 +11,11 @@ import productsData from '../data/produtos.json';
 function LojaPage() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('cartItems');
+    return savedCart ? JSON.parse(savedCart) : [];
+});
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   
   // --- ESTADOS DOS FILTROS ---
@@ -21,6 +25,9 @@ function LojaPage() {
   const [selectedColor, setSelectedColor] = useState('todos'); // Novo estado para cor
   const [requests, setRequests] = useState([]);
 
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+}, [cartItems]);
 
   useEffect(() => {
     const savedRequests = localStorage.getItem('productRequests');
@@ -109,12 +116,14 @@ const filteredProducts = products
         if (!product.cores) return false; // Se o produto não tiver cores, ele não pode corresponder ao filtro
         return product.cores.some(color => color.nome === selectedColor); // Senão, verifique as cores
     });
+    const totalItemsInCart = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   return (
     <>
       <LojaHeader 
-        searchTerm={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
-      />
+    searchTerm={searchTerm}
+    onSearchChange={(e) => setSearchTerm(e.target.value)}
+    cartItemCount={totalItemsInCart} // Passa a contagem de itens
+/>
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           <FilterSidebar 
