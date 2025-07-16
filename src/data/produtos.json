@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "name": "Legging de Compressão",
+    "marca": "BeM Fit",
+    "categoria": "legging",
+    "genero": "Feminino",
+    "price": 189.90,
+    "desconto_percentual": null,
+    "image": "https://images.pexels.com/photos/7880136/pexels-photo-7880136.jpeg",
+    "material": "Poliamida com Elastano",
+    "avaliacao": 4.5,
+    "estoque": {
+      "P": 10,
+      "M": 10,
+      "G": 10
+    },
+    "cores": [
+        {"nome": "Preto", "hex": "#000000"},
+        {"nome": "Azul Marinho", "hex": "#000080"}
+    ],
+    "palavras_chave": "legging, calça, academia, treino, feminino, compressão"
+  },
+  {
+    "id": 2,
+    "name": "Camiseta Dry-Fit",
+    "marca": "BeM Performance",
+    "categoria": "camiseta",
+    "genero": "Masculino",
+    "price": 129.90,
+    "desconto_percentual": 0,
+    "image": "https://images.pexels.com/photos/8353997/pexels-photo-8353997.jpeg",
+    "material": "Poliéster",
+    "avaliacao": 5,
+    "estoque": {
+      "P": 10,
+      "M": 10,
+      "G": 10,
+      "GG": 10
+    },
+    "cores": [
+        {"nome": "Branco", "hex": "#FFFFFF"},
+        {"nome": "Cinza", "hex": "#808080"}
+    ],
+    "palavras_chave": "camiseta, camisa, dry-fit, corrida, masculino"
+  },
+  {
+    "id": 3,
+    "name": "Top Esportivo",
+    "marca": "BeM Fit",
+    "categoria": "top",
+    "genero": "Feminino",
+    "price": 99.90,
+    "desconto_percentual": 0,
+    "image": "https://images.pexels.com/photos/1089164/pexels-photo-1089164.jpeg",
+    "material": "Suplex",
+    "avaliacao": 4,
+    "estoque": {
+      "M": 10
+    },
+    "palavras_chave": "top, sutiã, academia, treino, feminino, sustentação"
+  },
+  {
+    "id": 4,
+    "name": "Shorts de Corrida",
+    "marca": "BeM Performance",
+    "categoria": "shorts",
+    "genero": "Masculino",
+    "price": 119.90,
+    "desconto_percentual": 15,
+    "image": "https://images.pexels.com/photos/29205206/pexels-photo-29205206.jpeg",
+    "material": "Tactel",
+    "avaliacao": 4.8,
+    "estoque": {
+      "P": 10,
+      "G": 10
+    },
+    "palavras_chave": "shorts, bermuda, corrida, treino, masculino"
+  }
+]
