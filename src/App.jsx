@@ -34,13 +34,9 @@ function AppLayout() {
 
       {/* Rota Protegida */}
       <Route
-        path="/admin/dashboard"
-        element={
-          <ProtectedRoute>
-            <AdminDashboardPage />
-          </ProtectedRoute>
-        }
-      />
+    path="/admin/dashboard"
+    element={<AdminDashboardPage />} // Removido o <ProtectedRoute>
+/>
     </Routes>
   );
 }

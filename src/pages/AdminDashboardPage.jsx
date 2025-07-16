@@ -6,30 +6,48 @@ import productsData from '../data/produtos.json';
 
 import AdminModal from '../components/AdminModal';
 import ProductForm from '../components/ProductForm';
+import Notification from '../components/Notification'; 
 
 function AdminDashboardPage() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-
+    
+    const [notification, setNotification] = useState({ message: '', visible: false });
     const [products, setProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [requests, setRequests] = useState([]);
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
+const [activeTab, setActiveTab] = useState('products');
 
 
     useEffect(() => {
-        const savedProducts = localStorage.getItem('products');
+    const savedProducts = localStorage.getItem('products');
+    if (savedProducts) {
+        setProducts(JSON.parse(savedProducts));
+    } else {
+        setProducts(productsData);
+    }
         const savedRequests = localStorage.getItem('productRequests');
     if (savedRequests) {
         setRequests(JSON.parse(savedRequests));
-    }
+    }setIsDataLoaded(true); 
 }, []);
 
     useEffect(() => {
-        if (products.length > 0) {
-            localStorage.setItem('products', JSON.stringify(products));
-        }
-    }, [products]);
+    if (isDataLoaded) { // Só salva se os dados já tiverem sido carregados
+        localStorage.setItem('products', JSON.stringify(products));
+    }
+}, [products, isDataLoaded]);
+
+    const showNotification = (message) => {
+    setNotification({ message, visible: true });
+    // Esconde a notificação após 3 segundos
+    setTimeout(() => {
+        setNotification(prev => ({ ...prev, visible: false }));
+    }, 3000);
+};
+
 
     const handleLogout = () => {
         logout();
@@ -67,13 +85,16 @@ function AdminDashboardPage() {
             ]);
         }
         setIsModalOpen(false);
+        showNotification('Produto salvo com sucesso!');
+
     };
 
     const handleDeleteProduct = (productIdToDelete) => {
         if (window.confirm('Tem certeza que deseja remover este produto? Esta ação não pode ser desfeita.')) {
-            setProducts(prevProducts => 
+            setProducts(prevProducts =>
                 prevProducts.filter(p => p.id !== productIdToDelete)
             );
+        showNotification('Produto removido com sucesso!'); 
         }
     };
 
@@ -89,8 +110,45 @@ function AdminDashboardPage() {
                     <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Sair</button>
                 </div>
             </header>
+
+            <div className="border-b border-gray-200">
+    <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+        {/* Aba de Produtos */}
+        <button
+            onClick={() => setActiveTab('products')}
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                ${activeTab === 'products'
+                    ? 'border-cyan-500 text-cyan-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`
+            }
+        >
+            Produtos Cadastrados
+        </button>
+
+        {/* Aba de Solicitações */}
+        <button
+            onClick={() => setActiveTab('requests')}
+            className={`relative whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                ${activeTab === 'requests'
+                    ? 'border-cyan-500 text-cyan-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`
+            }
+        >
+            Solicitações de Clientes
+            {/* Indicador de novas solicitações */}
+            {requests.length > 0 && (
+                <span className="absolute top-3 -right-3 ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {requests.length}
+                </span>
+            )}
+        </button>
+    </nav>
+</div>
             
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            {activeTab === 'products' && (
+                <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-semibold">Produtos Cadastrados</h2>
                     <button onClick={handleOpenAddModal} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">
@@ -126,8 +184,9 @@ function AdminDashboardPage() {
                     </table>
                 </div>
             </div>
-
-            <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
+            )}
+            {activeTab === 'requests' && (
+    <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
     <h2 className="text-2xl font-semibold mb-4">Solicitações de Clientes</h2>
     {requests.length > 0 ? (
         <div className="overflow-x-auto">
@@ -153,7 +212,7 @@ function AdminDashboardPage() {
     ) : (
         <p className="text-gray-500">Nenhuma solicitação de cliente no momento.</p>
     )}
-</div>
+</div>)}
 
             <AdminModal 
                 isOpen={isModalOpen} 
@@ -167,6 +226,7 @@ function AdminDashboardPage() {
                     onCancel={() => setIsModalOpen(false)}
                 />
             </AdminModal>
+            <Notification message={notification.message} visible={notification.visible} />
         </div>
     );
 }
