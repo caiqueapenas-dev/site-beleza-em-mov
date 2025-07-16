@@ -1,37 +1,41 @@
-// Dentro de AdminDashboardPage.jsx
+// src/pages/AdminDashboardPage.jsx
+import React from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-// ... (import de useState, useEffect, e dos produtos)
+function AdminDashboardPage() {
+    const { user, logout } = useAuth(); // Pegamos o usuário e a função de logout do contexto
+    const navigate = useNavigate();
 
-return (
-    <div>
-        <h1>Painel de Controle de Estoque</h1>
-        <button>Adicionar Novo Produto</button>
+    const handleLogout = () => {
+        logout();
+        navigate('/admin'); // Redireciona para a página de login após o logout
+    };
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Produto</th>
-                    <th>Estoque Detalhado</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {products.map(product => (
-                    <tr key={product.id}>
-                        <td>{product.name}</td>
-                        <td>
-                            {Object.entries(product.estoque).map(([tamanho, qtd]) => (
-                                <span key={tamanho}>
-                                    <strong>{tamanho}:</strong> {qtd} unid. 
-                                </span>
-                            ))}
-                        </td>
-                        <td>
-                            <button>Editar</button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
-);
+    return (
+        <div className="p-8">
+            <header className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-800">Painel do Administrador</h1>
+                <div className="flex items-center gap-4">
+                    {/* Mostra o email do usuário se ele existir */}
+                    <span className="text-gray-600">Bem-vindo, {user ? user.email : 'Admin'}!</span>
+                    <button 
+                        onClick={handleLogout}
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Sair
+                    </button>
+                </div>
+            </header>
+            
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-2xl font-semibold">Gerenciamento de Produtos</h2>
+                <p className="mt-4 text-gray-700">
+                    Em breve, a tabela de produtos será exibida aqui.
+                </p>
+            </div>
+        </div>
+    );
+}
+
+export default AdminDashboardPage;
