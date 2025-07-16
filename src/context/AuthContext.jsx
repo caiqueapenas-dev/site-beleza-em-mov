@@ -11,8 +11,8 @@ export function AuthProvider({ children }) {
   // Função de login (por enquanto, com dados fixos)
   const login = (email, password) => {
     // Lógica de autenticação "fake"
-    if (email === 'admin@bem.com' && password === 'admin123') {
-      const userData = { email: 'admin@bem.com', name: 'Admin' };
+    if (email === 'a@a' && password === 'a') {
+      const userData = { email: 'a@a', name: 'a' };
       setUser(userData); // Atualiza o estado para logado
       return true;
     }

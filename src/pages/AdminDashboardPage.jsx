@@ -13,9 +13,6 @@ function AdminDashboardPage() {
 
     const [products, setProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // --- NOVO ESTADO ---
-    // Guarda o produto que está sendo editado. Se for null, estamos no modo de "adicionar".
     const [editingProduct, setEditingProduct] = useState(null);
 
     useEffect(() => {
@@ -45,43 +42,43 @@ function AdminDashboardPage() {
             .join(' | ');
     };
 
-    // --- NOVAS FUNÇÕES ---
-
-    // Abre o modal para ADICIONAR
     const handleOpenAddModal = () => {
-        setEditingProduct(null); // Garante que não há produto em modo de edição
+        setEditingProduct(null);
         setIsModalOpen(true);
     };
     
-    // Abre o modal para EDITAR
     const handleOpenEditModal = (product) => {
-        setEditingProduct(product); // Define o produto a ser editado
+        setEditingProduct(product);
         setIsModalOpen(true);
     };
 
-    // Salva o produto (seja novo ou editado)
     const handleSaveProduct = (formData) => {
         if (editingProduct) {
-            // Lógica de ATUALIZAÇÃO
             setProducts(prevProducts =>
                 prevProducts.map(p =>
-                    p.id === editingProduct.id ? { ...p, ...formData } : p
+                    p.id === editingProduct.id ? { ...p, ...formData, id: editingProduct.id } : p
                 )
             );
         } else {
-            // Lógica de ADIÇÃO
             setProducts(prevProducts => [
                 ...prevProducts,
                 { ...formData, id: Date.now(), avaliacao: formData.avaliacao || 0 }
             ]);
         }
-        setIsModalOpen(false); // Fecha o modal
+        setIsModalOpen(false);
+    };
+
+    const handleDeleteProduct = (productIdToDelete) => {
+        if (window.confirm('Tem certeza que deseja remover este produto? Esta ação não pode ser desfeita.')) {
+            setProducts(prevProducts => 
+                prevProducts.filter(p => p.id !== productIdToDelete)
+            );
+        }
     };
 
     return (
         <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-                 {/* ... header continua igual ... */}
                  <div>
                     <h1 className="text-3xl font-bold text-gray-800">Painel de Controle</h1>
                     <p className="text-gray-500">Gerencie seus produtos e estoques.</p>
@@ -95,7 +92,6 @@ function AdminDashboardPage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-semibold">Produtos Cadastrados</h2>
-                    {/* Botão agora usa a nova função para abrir o modal de adição */}
                     <button onClick={handleOpenAddModal} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">
                         Adicionar Novo Produto
                     </button>
@@ -120,9 +116,8 @@ function AdminDashboardPage() {
                                     <td className="p-3">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}</td>
                                     <td className="p-3 whitespace-nowrap">{formatStock(product.estoque)}</td>
                                     <td className="p-3">
-                                        {/* Botão de editar agora chama a função para abrir o modal de edição */}
                                         <button onClick={() => handleOpenEditModal(product)} className="text-blue-600 hover:underline mr-4">Editar</button>
-                                        <button className="text-red-600 hover:underline">Remover</button>
+                                        <button onClick={() => handleDeleteProduct(product.id)} className="text-red-600 hover:underline">Remover</button>
                                     </td>
                                 </tr>
                             ))}
@@ -131,7 +126,6 @@ function AdminDashboardPage() {
                 </div>
             </div>
 
-            {/* O Modal agora é mais inteligente */}
             <AdminModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
@@ -139,8 +133,8 @@ function AdminDashboardPage() {
             >
                 <ProductForm 
                     onSubmit={handleSaveProduct}
-                    // Se estivermos editando, passamos os dados do produto para o formulário
-                    initialData={editingProduct}
+                    // ✅ AQUI ESTÁ A CORREÇÃO
+                    initialData={editingProduct || {}} 
                     onCancel={() => setIsModalOpen(false)}
                 />
             </AdminModal>
