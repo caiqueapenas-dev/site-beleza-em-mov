@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import productsData from '../data/produtos.json';
 
+// Componentes
 import AdminModal from '../components/AdminModal';
 import ProductForm from '../components/ProductForm';
 import Notification from '../components/Notification';
@@ -54,7 +55,7 @@ function AdminDashboardPage() {
   // --- FUNÇÕES DE LÓGICA ---
 
   const handleLogout = () => {
-    logout();
+    // logout(); // Comentado para não precisar logar de novo durante os testes
     navigate('/admin');
   };
 
@@ -65,18 +66,14 @@ function AdminDashboardPage() {
     }, 3000);
   };
 
-  // ✅ NOVA FUNÇÃO: Marcar uma solicitação como vista
   const handleMarkRequestAsSeen = (requestId) => {
     const updatedRequests = requests.map((req) =>
       req.id === requestId ? { ...req, seen: true } : req,
     );
     setRequests(updatedRequests);
-    // A linha abaixo é opcional, mas recomendada para persistir a mudança
-    localStorage.setItem('productRequests', JSON.stringify(updatedRequests));
     showNotification('Solicitação marcada como vista!');
   };
 
-  // ... (outras funções como formatStock, handleOpenModals, etc. continuam iguais)
   const formatStock = (stockObject) => {
     if (!stockObject) return 'N/A';
     return Object.entries(stockObject)
@@ -114,7 +111,7 @@ function AdminDashboardPage() {
   };
 
   const handleDeleteProduct = (productIdToDelete) => {
-    if (window.confirm('Tem certeza?')) {
+    if (window.confirm('Tem certeza que deseja remover este produto?')) {
       setProducts((prev) => prev.filter((p) => p.id !== productIdToDelete));
       showNotification('Produto removido com sucesso!');
     }
@@ -122,7 +119,6 @@ function AdminDashboardPage() {
 
   // --- PREPARAÇÃO DE DADOS PARA COMPONENTES FILHOS ---
 
-  // ✅ DADOS PARA SUGESTÕES NO FORMULÁRIO
   const allNames = [...new Set(products.map((p) => p.name))];
   const allMaterials = [
     ...new Set(products.map((p) => p.material).filter(Boolean)),
@@ -140,7 +136,6 @@ function AdminDashboardPage() {
     ...new Set(products.map((p) => p.categoria).filter(Boolean)),
   ];
 
-  // ✅ CÁLCULO PARA O BADGE DE NOTIFICAÇÃO
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
   // --- RENDERIZAÇÃO DO COMPONENTE ---
@@ -154,7 +149,7 @@ function AdminDashboardPage() {
           <p className="text-gray-500">Gerencie seus produtos e estoques.</p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <span className="text-gray-600">Bem-vindo, a@!</span>
+          <span className="text-gray-600">Bem-vindo, Admin!</span>
           <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
@@ -187,7 +182,7 @@ function AdminDashboardPage() {
         </nav>
       </div>
 
-      {/* Conteúdo da Aba de Produtos */}
+      {/* Conteúdo da Aba de PRODUTOS */}
       {activeTab === 'products' && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
           <div className="flex justify-between items-center mb-4">
@@ -196,7 +191,7 @@ function AdminDashboardPage() {
               onClick={handleOpenAddModal}
               className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg"
             >
-              Adicionar Novo Produto
+              Adicionar Novo
             </button>
           </div>
           <div className="overflow-x-auto">
@@ -246,7 +241,7 @@ function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Conteúdo da Aba de Solicitações */}
+      {/* Conteúdo da Aba de SOLICITAÇÕES */}
       {activeTab === 'requests' && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
           <h2 className="text-2xl font-semibold mb-4">
@@ -257,7 +252,9 @@ function AdminDashboardPage() {
               <table className="w-full text-left">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="p-3 font-semibold">Produto</th>
+                    <th className="p-3 font-semibold">Cliente</th>
+                    <th className="p-3 font-semibold">Contato (WhatsApp)</th>
+                    <th className="p-3 font-semibold">Produto Solicitado</th>
                     <th className="p-3 font-semibold">Tamanho</th>
                     <th className="p-3 font-semibold">Data</th>
                     <th className="p-3 font-semibold">Ações</th>
@@ -269,6 +266,23 @@ function AdminDashboardPage() {
                       key={req.id}
                       className={`border-b transition-opacity ${req.seen ? 'opacity-50' : ''}`}
                     >
+                      <td className="p-3 font-semibold">
+                        {req.requesterName || 'Não informado'}
+                      </td>
+                      <td className="p-3">
+                        {req.requesterPhone ? (
+                          <a
+                            href={`https://wa.me/55${(req.requesterPhone || '').replace(/\D/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-cyan-600 hover:underline"
+                          >
+                            {req.requesterPhone}
+                          </a>
+                        ) : (
+                          'Não informado'
+                        )}
+                      </td>
                       <td className="p-3">{req.productName}</td>
                       <td className="p-3 font-bold">{req.requestedSize}</td>
                       <td className="p-3">

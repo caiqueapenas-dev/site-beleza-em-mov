@@ -65,6 +65,23 @@ function LojaPage() {
   useEffect(() => {
     localStorage.setItem('productRequests', JSON.stringify(requests));
   }, [requests]);
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      // Verifica se a chave 'products' foi a que mudou em outra aba
+      if (event.key === 'products' && event.newValue) {
+        // Atualiza o estado da loja com os novos dados do localStorage
+        setProducts(JSON.parse(event.newValue));
+      }
+    };
+
+    // Adiciona o "ouvinte" de eventos de storage
+    window.addEventListener('storage', handleStorageChange);
+
+    // Função de limpeza: remove o "ouvinte" quando o componente é desmontado para evitar vazamento de memória
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []); // O array vazio [] garante que esta lógica rode apenas uma vez (ao montar/desmontar o componente)
 
   // --- FUNÇÕES DE MANIPULAÇÃO ---
 
