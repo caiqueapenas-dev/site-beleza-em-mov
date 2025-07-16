@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Notification from '../components/Notification';
 
 // Componentes
 import LojaHeader from '../components/LojaHeader';
@@ -22,6 +23,17 @@ function LojaPage() {
     const savedCart = localStorage.getItem('cartItems');
     return savedCart ? JSON.parse(savedCart) : [];
   });
+  const [notification, setNotification] = useState({
+    message: '',
+    type: 'success',
+    visible: false,
+  });
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type, visible: true });
+    setTimeout(() => {
+      setNotification((prev) => ({ ...prev, visible: false }));
+    }, 3000); // A notificação some após 3 segundos
+  };
 
   // --- ESTADOS DE UI (Interface do Usuário) ---
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -77,19 +89,22 @@ function LojaPage() {
     setIsCartOpen(true);
   };
 
-  const handleRequestSize = (product, size) => {
+  const handleRequestSize = (product, size, requesterInfo) => {
     const newRequest = {
       id: Date.now(),
-      productId: product.id,
       productName: product.name,
       requestedSize: size,
+      requesterName: requesterInfo.name, // Novo campo
+      requesterPhone: requesterInfo.phone, // Novo campo
       timestamp: new Date().toISOString(),
-      seen: false, // Adicionado para a funcionalidade do painel admin
+      seen: false,
     };
     setRequests((prev) => [...prev, newRequest]);
-    alert(
-      `Sua solicitação para o produto ${product.name}, tamanho ${size}, foi registrada!`,
+    // A lógica do toast virá no próximo passo, por enquanto vamos manter um alerta melhorado
+    showNotification(
+      `Obrigado, ${requesterInfo.name}! Sua solicitação foi registrada com sucesso.`,
     );
+
     handleCloseModal();
   };
 
@@ -225,6 +240,7 @@ function LojaPage() {
         onAddToCart={handleAddToCart}
         onRequestSize={handleRequestSize}
       />
+
       <Cart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -233,6 +249,11 @@ function LojaPage() {
         onIncreaseQuantity={handleIncreaseQuantity}
         onDecreaseQuantity={handleDecreaseQuantity}
         onRemoveItem={handleRemoveItem}
+      />
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        visible={notification.visible}
       />
     </>
   );

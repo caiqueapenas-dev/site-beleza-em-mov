@@ -10,6 +10,10 @@ function LojaHeader({
 }) {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30">
+      {/* Banner de Promoção */}
+      <div className="bg-cyan-500 text-white py-2 text-center text-sm font-semibold">
+        <p>🔥 PROMOÇÃO DO MÊS: 15% de desconto em todos os tops! 🔥</p>
+      </div>
       {/* Container principal para o cabeçalho */}
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">
@@ -51,11 +55,6 @@ function LojaHeader({
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Banner de Promoção */}
-      <div className="bg-cyan-500 text-white py-2 text-center text-sm font-semibold">
-        <p>🔥 PROMOÇÃO DO MÊS: 15% de desconto em todos os tops! 🔥</p>
       </div>
     </header>
   );
