@@ -38,20 +38,28 @@ function Cart({ isOpen, onClose, cartItems = [], onCheckout }) {
                     )}
                 </div>
 
-                <div className="p-4 border-t">
-                    <div className="flex justify-between font-bold text-lg mb-4">
+                <div className="p-4 border-t space-y-2">
+                    <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
                         <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}</span>
                     </div>
-                    <button 
-                        onClick={onCheckout}
-                        disabled={cartItems.length === 0}
-                        className="w-full bg-cyan-500 text-white py-3 rounded-lg font-bold hover:bg-cyan-600 disabled:bg-gray-400"
-                    >
-                        Finalizar Pedido no WhatsApp
-                    </button>
+                    <div className="flex flex-col-reverse sm:flex-row gap-2">
+        <button
+            onClick={onClose}
+            className="w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-bold hover:bg-gray-300"
+        >
+            Continuar Comprando
+        </button>
+        <button
+            onClick={onCheckout}
+            disabled={cartItems.length === 0}
+            className="w-full bg-cyan-500 text-white py-3 rounded-lg font-bold hover:bg-cyan-600 disabled:bg-gray-400"
+        >
+            Finalizar Pedido
+        </button>
                 </div>
             </div>
+        </div>
         </div>
     );
 }

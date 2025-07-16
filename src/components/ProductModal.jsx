@@ -8,7 +8,8 @@ const StarRating = ({ rating }) => {
     return <div className="flex">{stars}</div>;
 };
 
-function ProductModal({ product, onClose, onAddToCart }) {
+function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
+
     const [selectedSize, setSelectedSize] = useState(null);
 
     if (!product) {
@@ -46,27 +47,47 @@ function ProductModal({ product, onClose, onAddToCart }) {
 
                     <div className="space-y-6">
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-600 mb-2">SELECIONE O TAMANHO</h3>
-                            <div className="flex flex-wrap gap-3">
-                                {['P', 'M', 'G', 'GG'].map(size => {
-                                    const isAvailable = size in product.estoque;
-                                    return (
-                                        <button
-                                            key={size}
-                                            onClick={() => isAvailable && setSelectedSize(size)}
-                                            disabled={!isAvailable}
-                                            className={`
-                                                size-btn border rounded-md w-14 h-12 transition-colors relative
-                                                ${isAvailable ? 'hover:bg-gray-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}
-                                                ${selectedSize === size ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-400'}
-                                            `}
-                                        >
-                                            {size}
-                                            {!isAvailable && <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-400 transform -rotate-45"></div>}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+    <h3 className="text-sm font-semibold text-gray-600 mb-2">SELECIONE O TAMANHO</h3>
+    <div className="flex flex-wrap gap-3">
+        {['P', 'M', 'G', 'GG'].map(size => {
+            // Verifica se o estoque para o tamanho existe e é maior que zero
+            const isAvailable = product.estoque && product.estoque[size] > 0;
+
+            // Se o tamanho estiver disponível, renderize um botão selecionável
+            if (isAvailable) {
+                return (
+                    <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`size-btn border rounded-md w-14 h-12 transition-colors
+                            ${selectedSize === size 
+                                ? 'bg-gray-900 text-white border-gray-900' 
+                                : 'border-gray-400 hover:bg-gray-200'
+                            }`
+                        }
+                    >
+                        {size}
+                    </button>
+                );
+            } 
+            // Se o tamanho NÃO estiver disponível, renderize o botão "Solicitar"
+            else {
+                return (
+                    <button
+                        key={size}
+                        onClick={() => onRequestSize(product, size)}
+                        title={`Solicitar tamanho ${size}`}
+                        className="border border-dashed border-cyan-500 text-cyan-600 rounded-md w-14 h-12 text-sm font-semibold transition-colors hover:bg-cyan-50"
+                    >
+                        Solicitar
+                    </button>
+                );
+            }
+        })}
+    </div>
+    <p className="text-xs text-gray-500 mt-2">Não encontrou o seu tamanho? Clique em "Solicitar".</p>
+</div>
+<p className="text-xs text-gray-500 mt-2">Não encontrou o seu tamanho? Clique em "Solicitar".</p>
                         </div>
                         <div>
                             <h3 className="text-sm font-semibold text-gray-600 mb-2">DESCRIÇÃO</h3>
@@ -87,7 +108,6 @@ function ProductModal({ product, onClose, onAddToCart }) {
                     </div>
                 </div>
             </div>
-        </div>
     );
 }
 

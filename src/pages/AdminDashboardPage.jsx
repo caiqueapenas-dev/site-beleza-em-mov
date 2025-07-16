@@ -14,15 +14,16 @@ function AdminDashboardPage() {
     const [products, setProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [requests, setRequests] = useState([]);
+
 
     useEffect(() => {
         const savedProducts = localStorage.getItem('products');
-        if (savedProducts) {
-            setProducts(JSON.parse(savedProducts));
-        } else {
-            setProducts(productsData);
-        }
-    }, []);
+        const savedRequests = localStorage.getItem('productRequests');
+    if (savedRequests) {
+        setRequests(JSON.parse(savedRequests));
+    }
+}, []);
 
     useEffect(() => {
         if (products.length > 0) {
@@ -125,6 +126,34 @@ function AdminDashboardPage() {
                     </table>
                 </div>
             </div>
+
+            <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
+    <h2 className="text-2xl font-semibold mb-4">Solicitações de Clientes</h2>
+    {requests.length > 0 ? (
+        <div className="overflow-x-auto">
+            <table className="w-full text-left">
+                <thead className="bg-gray-100">
+                    <tr>
+                        <th className="p-3 font-semibold">Produto Solicitado</th>
+                        <th className="p-3 font-semibold">Tamanho</th>
+                        <th className="p-3 font-semibold">Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {requests.map(req => (
+                        <tr key={req.id} className="border-b">
+                            <td className="p-3">{req.productName}</td>
+                            <td className="p-3 font-bold">{req.requestedSize}</td>
+                            <td className="p-3">{new Date(req.timestamp).toLocaleDateString('pt-BR')}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    ) : (
+        <p className="text-gray-500">Nenhuma solicitação de cliente no momento.</p>
+    )}
+</div>
 
             <AdminModal 
                 isOpen={isModalOpen} 

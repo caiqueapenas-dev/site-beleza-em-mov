@@ -19,6 +19,23 @@ function LojaPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSize, setSelectedSize] = useState('todos'); // Novo estado para tamanho
   const [selectedColor, setSelectedColor] = useState('todos'); // Novo estado para cor
+  const [requests, setRequests] = useState([]);
+
+
+  useEffect(() => {
+    const savedRequests = localStorage.getItem('productRequests');
+    if (savedRequests) {
+        setRequests(JSON.parse(savedRequests));
+    }
+}, []);
+
+// Salva as solicitações no LocalStorage sempre que o estado 'requests' mudar
+useEffect(() => {
+    // Evita salvar o array vazio inicial
+    if (requests.length > 0) {
+        localStorage.setItem('productRequests', JSON.stringify(requests));
+    }
+}, [requests]);
 
   useEffect(() => {
     const savedProducts = localStorage.getItem('products');
@@ -42,6 +59,23 @@ function LojaPage() {
     handleCloseModal();
     setIsCartOpen(true);
   };
+
+  const handleCheckout = () => { /* ... */ };
+
+// ADICIONAR ESTA FUNÇÃO
+const handleRequestSize = (product, size) => {
+    const newRequest = {
+        id: Date.now(),
+        productId: product.id,
+        productName: product.name,
+        requestedSize: size,
+        timestamp: new Date().toISOString()
+    };
+    setRequests(prev => [...prev, newRequest]);
+    alert(`Sua solicitação para o produto ${product.name}, tamanho ${size}, foi registrada!`);
+    handleCloseModal();
+};
+
 
   // --- LÓGICA DE FILTROS AVANÇADA ---
 
@@ -113,10 +147,11 @@ const filteredProducts = products
       </main>
       <Footer />
       <ProductModal 
-        product={selectedProduct} 
-        onClose={handleCloseModal} 
-        onAddToCart={handleAddToCart}
-      />
+    product={selectedProduct} 
+    onClose={handleCloseModal} 
+    onAddToCart={handleAddToCart}
+    onRequestSize={handleRequestSize} // Adicionar esta prop
+/>
       <Cart 
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
