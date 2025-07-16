@@ -22,7 +22,7 @@ function ProductCard({ product }) {
   }).format(product.price);
 
   return (
-    <div className="product-card bg-white rounded-lg p-4 text-left group flex flex-col shadow-sm hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+    <div className="product-card bg-white rounded-lg p-4 text-left group flex flex-col shadow-sm hover:shadow-xl transition-shadow duration-300">
       <img src={product.image} alt={product.name} className="w-full h-auto object-cover rounded-md mb-4 aspect-[4/5] pointer-events-none" />
       <div className="flex-grow pointer-events-none">
         <h4 className="font-semibold product-name text-gray-800">{product.name}</h4>

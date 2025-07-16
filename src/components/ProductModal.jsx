@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { X, Star } from 'lucide-react';
 
-// Componente para renderizar as estrelas de avaliação
 const StarRating = ({ rating }) => {
     const stars = Array.from({ length: 5 }, (_, i) => (
         <Star key={i} className={`w-5 h-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
@@ -10,12 +9,11 @@ const StarRating = ({ rating }) => {
     return <div className="flex">{stars}</div>;
 };
 
-// O modal precisa receber o produto a ser exibido (product) e uma função para fechar (onClose)
 function ProductModal({ product, onClose, onAddToCart }) {
     const [selectedSize, setSelectedSize] = useState(null);
 
     if (!product) {
-        return null; // Se não houver produto para exibir, não renderize nada
+        return null;
     }
     
     const handleAddToCartClick = () => {
@@ -26,7 +24,6 @@ function ProductModal({ product, onClose, onAddToCart }) {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-            {/* Overlay para fechar ao clicar fora */}
             <div className="absolute inset-0" onClick={onClose}></div>
 
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row relative overflow-hidden animate-fade-in">
@@ -52,7 +49,8 @@ function ProductModal({ product, onClose, onAddToCart }) {
                             <h3 className="text-sm font-semibold text-gray-600 mb-2">SELECIONE O TAMANHO</h3>
                             <div className="flex flex-wrap gap-3">
                                 {['P', 'M', 'G', 'GG'].map(size => {
-                                    const isAvailable = product.tamanhos_disponiveis.includes(size);
+                                    // ✅ AQUI ESTÁ A CORREÇÃO
+                                    const isAvailable = size in product.estoque;
                                     return (
                                         <button
                                             key={size}
