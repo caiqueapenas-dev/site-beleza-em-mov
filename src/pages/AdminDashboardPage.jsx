@@ -24,6 +24,8 @@ function AdminDashboardPage() {
     message: '',
     visible: false,
   });
+  const [adminSearchTerm, setAdminSearchTerm] = useState(''); // Para a busca no painel
+  const [adminCategory, setAdminCategory] = useState('todos'); // Para o filtro de categoria no painel
 
   // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
 
@@ -138,6 +140,14 @@ function AdminDashboardPage() {
 
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
+  // ADICIONE este bloco
+  // Filtra os produtos para exibição no painel admin
+  const filteredAdminProducts = products
+    .filter((p) => adminCategory === 'todos' || p.categoria === adminCategory)
+    .filter((p) =>
+      p.name.toLowerCase().includes(adminSearchTerm.toLowerCase()),
+    );
+
   // --- RENDERIZAÇÃO DO COMPONENTE ---
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
@@ -185,14 +195,41 @@ function AdminDashboardPage() {
       {/* Conteúdo da Aba de PRODUTOS */}
       {activeTab === 'products' && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md animate-fade-in">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
             <h2 className="text-2xl font-semibold">Produtos Cadastrados</h2>
             <button
               onClick={handleOpenAddModal}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg whitespace-nowrap"
             >
               Adicionar Novo
             </button>
+          </div>
+
+          {/* ADICIONE TODO ESTE BLOCO */}
+          <div className="flex flex-col md:flex-row gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+            <input
+              type="text"
+              placeholder="Buscar por nome do produto..."
+              value={adminSearchTerm}
+              onChange={(e) => setAdminSearchTerm(e.target.value)}
+              className="w-full md:w-1/3 p-2 border rounded-md"
+            />
+            <select
+              value={adminCategory}
+              onChange={(e) => setAdminCategory(e.target.value)}
+              className="w-full md:w-auto p-2 border rounded-md bg-white"
+            >
+              <option value="todos">Todas as Categorias</option>
+              {allCategories.map((cat) => (
+                <option key={cat} value={cat} className="capitalize">
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">{/* ... */}</table>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -206,7 +243,7 @@ function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {filteredAdminProducts.map((product) => (
                   <tr key={product.id} className="border-b hover:bg-gray-50">
                     <td className="p-3">{product.name}</td>
                     <td className="p-3 capitalize">{product.categoria}</td>
