@@ -1,4 +1,3 @@
-// src/components/ProductModal.jsx
 import React, { useState } from 'react';
 import { X, Star } from 'lucide-react';
 
@@ -28,11 +27,12 @@ function ProductModal({ product, onClose, onAddToCart }) {
 
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row relative overflow-hidden animate-fade-in">
                 <div className="w-full md:w-1/2">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    {/* ✅ IMAGEM CORRIGIDA: Altura fixa em telas pequenas e altura total em telas grandes */}
+                    <img src={product.image} alt={product.name} className="w-full h-80 object-cover md:h-full" />
                 </div>
 
-                <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col">
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col overflow-y-auto">
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-10">
                         <X className="w-6 h-6" />
                     </button>
 
@@ -49,7 +49,6 @@ function ProductModal({ product, onClose, onAddToCart }) {
                             <h3 className="text-sm font-semibold text-gray-600 mb-2">SELECIONE O TAMANHO</h3>
                             <div className="flex flex-wrap gap-3">
                                 {['P', 'M', 'G', 'GG'].map(size => {
-                                    // ✅ AQUI ESTÁ A CORREÇÃO
                                     const isAvailable = size in product.estoque;
                                     return (
                                         <button

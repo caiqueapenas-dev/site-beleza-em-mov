@@ -6,7 +6,7 @@ import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
 import Cart from '../components/Cart';
 import FilterSidebar from '../components/FilterSidebar';
-import productsData from '../data/produtos.json';
+import productsData from '../data/produtos.json'; // Usado como carga inicial se o LocalStorage estiver vazio
 
 function LojaPage() {
   const [products, setProducts] = useState([]);
@@ -14,15 +14,20 @@ function LojaPage() {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('todos');
-
-  // --- NOVO ESTADO PARA A BUSCA ---
   const [searchTerm, setSearchTerm] = useState('');
 
+  // ✅ EFEITO PARA CARREGAR OS DADOS (com LocalStorage) - AQUI ESTÁ A CORREÇÃO
   useEffect(() => {
-    setProducts(productsData);
+    // Tenta carregar os produtos do LocalStorage
+    const savedProducts = localStorage.getItem('products');
+    if (savedProducts) {
+      setProducts(JSON.parse(savedProducts));
+    } else {
+      // Se não houver nada salvo, usa a carga inicial do JSON
+      setProducts(productsData);
+    }
   }, []);
 
-  // ... (funções handleProductClick, handleCloseModal, etc. continuam iguais)
   const handleProductClick = (product) => setSelectedProduct(product);
   const handleCloseModal = () => setSelectedProduct(null);
   const handleAddToCart = (product, size) => {
@@ -44,21 +49,17 @@ function LojaPage() {
     alert('Pedido finalizado! (Funcionalidade a ser implementada)');
   };
 
-  // --- LÓGICA DE FILTRAGEM ATUALIZADA ---
   const filteredProducts = products
-    // 1. Filtra por categoria primeiro
     .filter(product => {
       if (activeCategory === 'todos') return true;
       return product.categoria === activeCategory;
     })
-    // 2. Em seguida, filtra o resultado pelo termo da busca
     .filter(product =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   return (
     <>
-      {/* 3. Passe o estado e a função para o Header */}
       <LojaHeader 
         searchTerm={searchTerm}
         onSearchChange={(e) => setSearchTerm(e.target.value)}
@@ -85,7 +86,6 @@ function LojaPage() {
               ))}
             </div>
             
-            {/* Mensagem para quando nenhum produto é encontrado */}
             {filteredProducts.length === 0 && (
               <div className="text-center py-12 px-6 bg-gray-100 rounded-lg">
                 <h3 className="text-2xl font-bold text-gray-800">Nenhum produto encontrado</h3>

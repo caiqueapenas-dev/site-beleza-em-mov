@@ -1,8 +1,6 @@
-// src/components/ProductCard.jsx
 import React from 'react';
 import { Star } from 'lucide-react';
 
-// Componente para renderizar as estrelas de avaliação
 const StarRating = ({ rating }) => {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
@@ -13,15 +11,14 @@ const StarRating = ({ rating }) => {
   return <div className="flex">{stars}</div>;
 };
 
-// O card recebe um objeto 'product' como propriedade (prop)
 function ProductCard({ product }) {
-  // Formata o preço para o padrão brasileiro
   const formattedPrice = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   }).format(product.price);
 
   return (
+    // Removido o 'cursor-pointer' daqui, pois o clique é gerenciado pelo componente pai
     <div className="product-card bg-white rounded-lg p-4 text-left group flex flex-col shadow-sm hover:shadow-xl transition-shadow duration-300">
       <img src={product.image} alt={product.name} className="w-full h-auto object-cover rounded-md mb-4 aspect-[4/5] pointer-events-none" />
       <div className="flex-grow pointer-events-none">
@@ -31,7 +28,8 @@ function ProductCard({ product }) {
         </div>
         <p className="font-bold mt-2 text-xl text-gray-900">{formattedPrice}</p>
       </div>
-      <button className="w-full mt-4 bg-gray-800 text-white py-2 rounded-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      {/* ✅ BOTÃO CORRIGIDO: classes de opacidade removidas */}
+      <button className="w-full mt-4 bg-gray-800 text-white py-2 rounded-lg font-semibold transition-opacity duration-300">
         Ver opções
       </button>
     </div>
