@@ -1,7 +1,13 @@
 // Substitua o conteúdo do seu CheckoutPage.jsx por este:
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Adicionar useEffect
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { CreditCard, Smartphone, DollarSign } from 'lucide-react';
+import {
+  CreditCard,
+  Smartphone,
+  DollarSign,
+  Tag,
+  CheckCircle,
+} from 'lucide-react'; // Adicionar Tag e CheckCircle
 
 function CheckoutPage() {
   const location = useLocation();
@@ -24,6 +30,18 @@ function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [coupon, setCoupon] = useState('');
 
+  const [promoSettings, setPromoSettings] = useState({ coupons: [] });
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponMessage, setCouponMessage] = useState({ text: '', type: '' });
+
+  // Carregar cupons do localStorage
+  useEffect(() => {
+    const savedPromos = localStorage.getItem('promoSettings');
+    if (savedPromos) {
+      setPromoSettings(JSON.parse(savedPromos));
+    }
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCustomerInfo((prev) => ({ ...prev, [name]: value }));
@@ -33,8 +51,36 @@ function CheckoutPage() {
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  // Lógica de cupom pode ser adicionada aqui para calcular o total
-  const total = subtotal;
+
+  // Calcula o desconto e o total
+  const discountAmount = appliedCoupon
+    ? subtotal * (appliedCoupon.discountPercent / 100)
+    : 0;
+  const total = subtotal - discountAmount;
+
+  const handleApplyCoupon = () => {
+    setCouponMessage({ text: '', type: '' });
+    if (appliedCoupon) {
+      setCouponMessage({
+        text: 'Apenas um cupom pode ser aplicado.',
+        type: 'error',
+      });
+      return;
+    }
+    const foundCoupon = promoSettings.coupons.find(
+      (c) => c.code.toUpperCase() === coupon.toUpperCase() && c.isActive,
+    );
+
+    if (foundCoupon) {
+      setAppliedCoupon(foundCoupon);
+      setCouponMessage({
+        text: `Cupom de ${foundCoupon.discountPercent}% aplicado!`,
+        type: 'success',
+      });
+    } else {
+      setCouponMessage({ text: 'Cupom inválido ou expirado.', type: 'error' });
+    }
+  };
 
   const handleSubmitOrder = () => {
     // Validação simples
@@ -53,9 +99,8 @@ function CheckoutPage() {
       )
       .join('\n');
 
-    // Monta a mensagem final
     const message = `
-*🎉 NOVO PEDIDO REALIZADO PELO SITE!*
+*NOVO PEDIDO REALIZADO PELO SITE!*
 
 *DADOS DO CLIENTE:*
 *Nome:* ${customerInfo.name}
@@ -69,10 +114,10 @@ function CheckoutPage() {
 ${itemsList}
 
 -----------------------------------
-
+*Subtotal:* ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(subtotal)}
+${appliedCoupon ? `*Cupom Aplicado (${appliedCoupon.code}):* -${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(discountAmount)}\n` : ''}
 *Total:* *${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}*
 *Forma de Pagamento Escolhida:* ${paymentMethod}
-${coupon ? `*Cupom Aplicado:* ${coupon}` : ''}
 
 Aguardando contato para finalizar a compra.
     `;
@@ -206,11 +251,42 @@ Aguardando contato para finalizar a compra.
                 onChange={(e) => setCoupon(e.target.value)}
                 placeholder="Cupom de desconto"
                 className="w-full p-2 border rounded-md"
+                disabled={!!appliedCoupon}
               />
-              <button className="px-4 bg-gray-200 rounded-md text-sm font-bold">
+              <button
+                onClick={handleApplyCoupon}
+                disabled={!!appliedCoupon}
+                className="px-4 bg-gray-200 rounded-md text-sm font-bold hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+              >
                 Aplicar
               </button>
             </div>
+            {/* Mensagens de feedback do cupom */}
+            {couponMessage.text && (
+              <div
+                className={`text-xs flex items-center gap-1 ${couponMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {couponMessage.type === 'success' ? (
+                  <CheckCircle size={14} />
+                ) : (
+                  <Tag size={14} />
+                )}
+                {couponMessage.text}
+              </div>
+            )}
+            {/* Exibição do desconto */}
+            {appliedCoupon && (
+              <div className="flex justify-between text-sm text-green-600">
+                <p>Desconto ({appliedCoupon.code})</p>
+                <p>
+                  -
+                  {new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(discountAmount)}
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex justify-between font-bold text-xl pt-4">
             <p>Total</p>

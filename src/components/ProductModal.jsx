@@ -31,6 +31,12 @@ function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
   if (!product) {
     return null;
   }
+  // Lógica de preço com desconto
+  const hasDiscount =
+    product.desconto_percentual && product.desconto_percentual > 0;
+  const currentPrice = hasDiscount
+    ? product.price * (1 - product.desconto_percentual / 100)
+    : product.price;
 
   // Função para o botão principal de adicionar ao carrinho
   const handleAddToCartClick = () => {
@@ -67,14 +73,23 @@ function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
           <div className="mb-6">
             <h2 className="text-3xl font-bold text-gray-900">{product.name}</h2>
             <div className="my-3">
-              <StarRating rating={product.avaliacao} />
+              <div className="flex items-baseline gap-3">
+                <p className="text-4xl font-light text-gray-800">
+                  {new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(currentPrice)}
+                </p>
+                {hasDiscount && (
+                  <p className="text-2xl font-light text-gray-400 line-through">
+                    {new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }).format(product.price)}
+                  </p>
+                )}
+              </div>
             </div>
-            <p className="text-4xl font-light text-gray-800">
-              {new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-              }).format(product.price)}
-            </p>
           </div>
 
           {/* Bloco de Conteúdo (com scroll se necessário) */}

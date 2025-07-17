@@ -19,6 +19,7 @@ function LojaPage() {
   // --- ESTADOS PRINCIPAIS ---
   const [products, setProducts] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [promoSettings, setPromoSettings] = useState(null);
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('cartItems');
     return savedCart ? JSON.parse(savedCart) : [];
@@ -54,6 +55,9 @@ function LojaPage() {
 
     const savedRequests = localStorage.getItem('productRequests');
     if (savedRequests) setRequests(JSON.parse(savedRequests));
+
+    const savedPromos = localStorage.getItem('promoSettings'); // NOVO
+    if (savedPromos) setPromoSettings(JSON.parse(savedPromos));
   }, []);
 
   // Salva o carrinho no LocalStorage sempre que ele muda
@@ -203,6 +207,7 @@ function LojaPage() {
         onSearchChange={(e) => setSearchTerm(e.target.value)}
         cartItemCount={totalItemsInCart}
         onCartClick={() => setIsCartOpen(true)}
+        promoBanner={promoSettings?.banner}
       />
       <main className="container mx-auto px-4 py-8">
         <div>

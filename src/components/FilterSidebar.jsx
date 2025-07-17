@@ -2,26 +2,42 @@
 import React from 'react';
 
 function FilterSidebar({
-  activeCategory, onCategoryChange,
-  availableColors, selectedColor, onColorChange,
-  selectedSize, onSizeChange,
-  onClearFilters
+  activeCategory,
+  onCategoryChange,
+  availableColors,
+  selectedColor,
+  onColorChange,
+  selectedSize,
+  onSizeChange,
+  onClearFilters,
 }) {
-  const categories = ['todos', 'top', 'legging', 'shorts', 'camiseta', 'jaqueta'];
+  const categories = [
+    'todos',
+    'top',
+    'legging',
+    'shorts',
+    'camiseta',
+    'jaqueta',
+  ];
   const sizes = ['P', 'M', 'G', 'GG'];
 
   return (
     <aside className="w-full md:w-1/4 lg:w-1/5">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Filtros</h2>
-        <button onClick={onClearFilters} className="text-sm text-cyan-600 hover:underline">Limpar Filtros</button>
+        <button
+          onClick={onClearFilters}
+          className="text-sm text-cyan-600 hover:underline"
+        >
+          Limpar Filtros
+        </button>
       </div>
       <div className="space-y-6">
         {/* Filtro de Categoria */}
         <div>
           <h3 className="font-semibold mb-2">Categorias</h3>
           <ul className="space-y-1 text-gray-600">
-            {categories.map(category => (
+            {categories.map((category) => (
               <li key={category}>
                 <button
                   onClick={() => onCategoryChange(category)}
@@ -38,7 +54,7 @@ function FilterSidebar({
         <div>
           <h3 className="font-semibold mb-2">Tamanho</h3>
           <div className="flex flex-wrap gap-2">
-            {sizes.map(size => (
+            {sizes.map((size) => (
               <button
                 key={size}
                 onClick={() => onSizeChange(size)}
@@ -54,7 +70,7 @@ function FilterSidebar({
         <div>
           <h3 className="font-semibold mb-2">Cor</h3>
           <div className="flex flex-wrap gap-2">
-            {availableColors.map(color => (
+            {availableColors.map((color) => (
               <button
                 key={color.nome}
                 onClick={() => onColorChange(color.nome)}

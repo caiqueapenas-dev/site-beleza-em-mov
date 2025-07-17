@@ -13,7 +13,9 @@ function Notification({ message, type = 'success', visible }) {
   const Icon = type === 'success' ? CheckCircle : XCircle;
 
   return (
-    <div className={`fixed top-5 right-5 p-4 rounded-lg border shadow-lg flex items-center z-50 animate-fade-in-down ${styles}`}>
+    <div
+      className={`fixed top-5 right-5 p-4 rounded-lg border shadow-lg flex items-center z-50 animate-fade-in-down ${styles}`}
+    >
       <Icon className="mr-3" />
       <span>{message}</span>
     </div>

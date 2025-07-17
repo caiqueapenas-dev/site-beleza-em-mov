@@ -14,13 +14,22 @@ function SobrePage() {
           {/* A classe 'prose' do Tailwind formata o texto de forma agradável */}
           <div className="prose lg:prose-xl text-gray-700 space-y-4">
             <p>
-              A Beleza em Movimento nasceu da paixão pelo esporte e pela crença de que a roupa que você veste pode e deve ser uma aliada na sua performance. Não somos apenas uma marca de roupas; somos um movimento que celebra a força, a resiliência e a beleza de cada corpo em atividade.
+              A Beleza em Movimento nasceu da paixão pelo esporte e pela crença
+              de que a roupa que você veste pode e deve ser uma aliada na sua
+              performance. Não somos apenas uma marca de roupas; somos um
+              movimento que celebra a força, a resiliência e a beleza de cada
+              corpo em atividade.
             </p>
             <p>
-              Nossa missão é criar peças com design inovador, tecnologia de ponta e conforto absoluto, para que sua única preocupação seja superar seus próprios limites. Cada costura, cada tecido e cada modelagem são pensados para oferecer a liberdade que você precisa para se mover, seja na academia, na rua ou na natureza.
+              Nossa missão é criar peças com design inovador, tecnologia de
+              ponta e conforto absoluto, para que sua única preocupação seja
+              superar seus próprios limites. Cada costura, cada tecido e cada
+              modelagem são pensados para oferecer a liberdade que você precisa
+              para se mover, seja na academia, na rua ou na natureza.
             </p>
             <p>
-              Junte-se a nós e sinta a diferença que a roupa certa pode fazer no seu dia a dia e nos seus treinos.
+              Junte-se a nós e sinta a diferença que a roupa certa pode fazer no
+              seu dia a dia e nos seus treinos.
             </p>
           </div>
         </div>

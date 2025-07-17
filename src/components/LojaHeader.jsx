@@ -7,13 +7,22 @@ function LojaHeader({
   onSearchChange,
   cartItemCount,
   onCartClick,
+  promoBanner,
 }) {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30">
-      {/* Banner de Promoção */}
-      <div className="bg-cyan-500 text-white py-2 text-center text-sm font-semibold">
-        <p>🔥 PROMOÇÃO DO MÊS: 15% de desconto em todos os tops! 🔥</p>
-      </div>
+      {/* Banner de Promoção Dinâmico */}
+      {promoBanner && promoBanner.isActive && (
+        <div
+          style={{
+            backgroundColor: promoBanner.backgroundColor,
+            color: promoBanner.textColor,
+          }}
+          className="py-2 text-center text-sm font-semibold"
+        >
+          <p>{promoBanner.text}</p>
+        </div>
+      )}
       {/* Container principal para o cabeçalho */}
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">

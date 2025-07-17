@@ -10,12 +10,16 @@ function AdminModal({ isOpen, onClose, title, children }) {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         <header className="flex justify-between items-center p-4 border-b">
           <h3 className="text-xl font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-800"
+          >
             <X />
           </button>
         </header>
         <main className="p-6 overflow-y-auto">
-          {children} {/* O conteúdo do modal (nosso formulário) será renderizado aqui */}
+          {children}{' '}
+          {/* O conteúdo do modal (nosso formulário) será renderizado aqui */}
         </main>
       </div>
     </div>
