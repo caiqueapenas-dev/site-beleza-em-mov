@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import productsData from '../data/produtos.json';
+// import productsData from '../data/produtos.json'; // Não precisamos mais disto
 
 // Componentes
 import AdminModal from '../components/AdminModal';
@@ -30,7 +30,7 @@ function AdminDashboardPage() {
       { id: '1', code: 'BEMVINDO15', discountPercent: 15, isActive: true },
     ],
   });
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  // const [isDataLoaded, setIsDataLoaded] = useState(false); // Não precisamos mais
   const [activeTab, setActiveTab] = useState('products');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -42,33 +42,26 @@ function AdminDashboardPage() {
   const [adminCategory, setAdminCategory] = useState('todos');
 
   // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
+
+  // Carrega os dados da API e do localStorage quando a página abre
   useEffect(() => {
-    const savedProducts = localStorage.getItem('products');
-    setProducts(savedProducts ? JSON.parse(savedProducts) : productsData);
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/produtos');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Falha ao buscar produtos da API:', error);
+      }
+    };
+    fetchProducts();
 
     const savedRequests = localStorage.getItem('productRequests');
     setRequests(savedRequests ? JSON.parse(savedRequests) : []);
 
     const savedPromos = localStorage.getItem('promoSettings');
     if (savedPromos) setPromoSettings(JSON.parse(savedPromos));
-
-    setIsDataLoaded(true);
   }, []);
-
-  useEffect(() => {
-    if (isDataLoaded)
-      localStorage.setItem('products', JSON.stringify(products));
-  }, [products, isDataLoaded]);
-
-  useEffect(() => {
-    if (isDataLoaded)
-      localStorage.setItem('productRequests', JSON.stringify(requests));
-  }, [requests, isDataLoaded]);
-
-  useEffect(() => {
-    if (isDataLoaded)
-      localStorage.setItem('promoSettings', JSON.stringify(promoSettings));
-  }, [promoSettings, isDataLoaded]);
 
   // --- FUNÇÕES DE LÓGICA ---
   const handleLogout = () => navigate('/admin');
@@ -100,30 +93,46 @@ function AdminDashboardPage() {
     setIsModalOpen(true);
   };
 
-  const handleSaveProduct = (formData) => {
+  // ***** FUNÇÃO ATUALIZADA *****
+  const handleSaveProduct = async (formData) => {
+    // Por enquanto, esta função só vai ADICIONAR novos produtos.
+    // A lógica de EDIÇÃO (PUT) faremos em seguida.
     if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id
-            ? { ...p, ...formData, id: editingProduct.id }
-            : p,
-        ),
-      );
-    } else {
-      setProducts((prev) => [
-        ...prev,
-        { ...formData, id: Date.now(), avaliacao: formData.avaliacao || 0 },
-      ]);
+      // Lógica de edição (próximo passo)
+      console.log('Editando produto...', formData);
+      alert('A funcionalidade de editar ainda será implementada!');
+      return;
     }
-    setIsModalOpen(false);
-    showNotification('Produto salvo com sucesso!');
+
+    // Lógica para ADICIONAR um novo produto via API
+    try {
+      const response = await fetch('/api/produtos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('A resposta do servidor não foi OK');
+      }
+
+      const newProductWithId = await response.json();
+
+      // Adiciona o novo produto à lista que está na tela, sem precisar recarregar
+      setProducts((prev) => [...prev, newProductWithId]);
+
+      setIsModalOpen(false);
+      showNotification('Produto adicionado com sucesso!');
+    } catch (error) {
+      console.error('Falha ao adicionar produto:', error);
+      showNotification('Erro ao adicionar produto.', 'error');
+    }
   };
 
   const handleDeleteProduct = (productIdToDelete) => {
-    if (window.confirm('Tem certeza que deseja remover este produto?')) {
-      setProducts((prev) => prev.filter((p) => p.id !== productIdToDelete));
-      showNotification('Produto removido com sucesso!');
-    }
+    // A lógica de DELETAR também precisará de uma chamada à API.
+    // Faremos isso depois da edição.
+    alert('A funcionalidade de deletar ainda será implementada!');
   };
 
   // --- PREPARAÇÃO DE DADOS ---
@@ -145,7 +154,7 @@ function AdminDashboardPage() {
   ];
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
-  // --- RENDERIZAÇÃO DO COMPONENTE ---
+  // --- RENDERIZAÇÃO (sem alterações aqui) ---
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
