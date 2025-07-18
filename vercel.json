@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.js",
+      "src": "api/index.cjs",
       "use": "@vercel/node"
     },
     {
@@ -19,7 +19,7 @@
       "destination": "/api/index.cjs"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
