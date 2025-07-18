@@ -93,39 +93,56 @@ function AdminDashboardPage() {
     setIsModalOpen(true);
   };
 
-  // ***** FUNÇÃO ATUALIZADA *****
   const handleSaveProduct = async (formData) => {
-    // Por enquanto, esta função só vai ADICIONAR novos produtos.
-    // A lógica de EDIÇÃO (PUT) faremos em seguida.
+    // Se estamos editando (editingProduct não é nulo)
     if (editingProduct) {
-      // Lógica de edição (próximo passo)
-      console.log('Editando produto...', formData);
-      alert('A funcionalidade de editar ainda será implementada!');
-      return;
-    }
+      try {
+        const response = await fetch(`/api/produtos/${editingProduct._id}`, {
+          // Usa o ID na URL
+          method: 'PUT', // Método para ATUALIZAR
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
 
-    // Lógica para ADICIONAR um novo produto via API
-    try {
-      const response = await fetch('/api/produtos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+        if (!response.ok) {
+          throw new Error('A resposta do servidor não foi OK');
+        }
 
-      if (!response.ok) {
-        throw new Error('A resposta do servidor não foi OK');
+        const updatedProduct = await response.json();
+
+        // Atualiza a lista de produtos na tela
+        setProducts((prev) =>
+          prev.map((p) => (p._id === editingProduct._id ? updatedProduct : p)),
+        );
+
+        setIsModalOpen(false);
+        showNotification('Produto editado com sucesso!');
+      } catch (error) {
+        console.error('Falha ao editar produto:', error);
+        showNotification('Erro ao editar produto.', 'error');
       }
+    } else {
+      // Se não estamos editando, estamos ADICIONANDO (lógica já existente)
+      try {
+        const response = await fetch('/api/produtos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
 
-      const newProductWithId = await response.json();
+        if (!response.ok) {
+          throw new Error('A resposta do servidor não foi OK');
+        }
 
-      // Adiciona o novo produto à lista que está na tela, sem precisar recarregar
-      setProducts((prev) => [...prev, newProductWithId]);
+        const newProductWithId = await response.json();
+        setProducts((prev) => [...prev, newProductWithId]);
 
-      setIsModalOpen(false);
-      showNotification('Produto adicionado com sucesso!');
-    } catch (error) {
-      console.error('Falha ao adicionar produto:', error);
-      showNotification('Erro ao adicionar produto.', 'error');
+        setIsModalOpen(false);
+        showNotification('Produto adicionado com sucesso!');
+      } catch (error) {
+        console.error('Falha ao adicionar produto:', error);
+        showNotification('Erro ao adicionar produto.', 'error');
+      }
     }
   };
 

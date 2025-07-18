@@ -1,21 +1,18 @@
 // api/index.js
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb'); // <-- IMPORTANTE: ADICIONAR ObjectId
 const app = express();
 
-// Pega a string de conexão que você configurou na Vercel
 const uri = process.env.MONGODB_URI;
-
-// Middleware para o Express entender JSON
 app.use(express.json());
 
-// --- ROTA GET (LER PRODUTOS) - Já existente ---
+// --- ROTA GET (LER PRODUTOS) ---
+// (nenhuma alteração aqui)
 app.get('/api/produtos', async (req, res) => {
-  if (!uri) {
+  if (!uri)
     return res
       .status(500)
       .json({ message: 'String de conexão não configurada.' });
-  }
   const client = new MongoClient(uri);
   try {
     await client.connect();
@@ -32,30 +29,63 @@ app.get('/api/produtos', async (req, res) => {
   }
 });
 
-// --- ROTA POST (ADICIONAR NOVO PRODUTO) - NOVO ---
+// --- ROTA POST (ADICIONAR PRODUTO) ---
+// (nenhuma alteração aqui)
 app.post('/api/produtos', async (req, res) => {
-  if (!uri) {
+  if (!uri)
     return res
       .status(500)
       .json({ message: 'String de conexão não configurada.' });
+  const client = new MongoClient(uri);
+  const newProduct = req.body;
+  try {
+    await client.connect();
+    const database = client.db('belezaEmMovDB');
+    const productsCollection = database.collection('produtos');
+    const result = await productsCollection.insertOne(newProduct);
+    res.status(201).json({ ...newProduct, _id: result.insertedId });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Erro ao adicionar produto', error: error.message });
+  } finally {
+    await client.close();
   }
+});
+
+// --- ROTA PUT (EDITAR PRODUTO) - NOVO ---
+app.put('/api/produtos/:id', async (req, res) => {
+  if (!uri)
+    return res
+      .status(500)
+      .json({ message: 'String de conexão não configurada.' });
 
   const client = new MongoClient(uri);
-  const newProduct = req.body; // Os dados do produto vêm no corpo da requisição
+  const { id } = req.params; // Pega o ID da URL
+  const updatedData = req.body; // Pega os novos dados do corpo da requisição
+
+  // Remove o campo _id do corpo para não tentar atualizar o próprio _id
+  delete updatedData._id;
 
   try {
     await client.connect();
     const database = client.db('belezaEmMovDB');
     const productsCollection = database.collection('produtos');
 
-    const result = await productsCollection.insertOne(newProduct);
+    const result = await productsCollection.updateOne(
+      { _id: new ObjectId(id) }, // Encontra o produto pelo seu _id
+      { $set: updatedData }, // Define os novos dados
+    );
 
-    // Retorna o produto que foi inserido com o ID gerado pelo Mongo
-    res.status(201).json({ ...newProduct, _id: result.insertedId });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Produto não encontrado' });
+    }
+
+    res.status(200).json({ ...updatedData, _id: id }); // Retorna o produto atualizado
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'Erro ao adicionar produto', error: error.message });
+      .json({ message: 'Erro ao editar produto', error: error.message });
   } finally {
     await client.close();
   }
