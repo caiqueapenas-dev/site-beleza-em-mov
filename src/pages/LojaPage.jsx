@@ -10,9 +10,6 @@ import ProductModal from '../components/ProductModal';
 import Cart from '../components/Cart';
 import FilterDropdown from '../components/FilterDropdown';
 
-// Dados
-import productsData from '../data/produtos.json';
-
 function LojaPage() {
   const navigate = useNavigate();
 
@@ -50,9 +47,24 @@ function LojaPage() {
 
   // Carrega produtos e solicitações do LocalStorage (ou do arquivo JSON) na primeira vez
   useEffect(() => {
-    const savedProducts = localStorage.getItem('products');
-    setProducts(savedProducts ? JSON.parse(savedProducts) : productsData);
+    // 1. Busca os produtos da nossa nova API
+    const fetchProducts = async () => {
+      try {
+        // Faz a chamada para a rota que criamos na Vercel
+        const response = await fetch('/api/produtos');
+        const data = await response.json();
+        setProducts(data); // Atualiza o estado com os produtos do banco de dados
+      } catch (error) {
+        console.error('Falha ao buscar produtos da API:', error);
+        // Opcional: carregar do localStorage como fallback se a API falhar
+        // const savedProducts = localStorage.getItem('products');
+        // if (savedProducts) setProducts(JSON.parse(savedProducts));
+      }
+    };
 
+    fetchProducts(); // Executa a função de busca
+
+    // 2. Mantém o carregamento das outras informações do localStorage
     const savedRequests = localStorage.getItem('productRequests');
     if (savedRequests) setRequests(JSON.parse(savedRequests));
 
@@ -95,11 +107,11 @@ function LojaPage() {
   const handleAddToCart = (product, size) => {
     setCartItems((prev) => {
       const itemExists = prev.find(
-        (item) => item.id === product.id && item.size === size,
+        (item) => item._id === product._id && item.size === size, // <-- MUDANÇA AQUI
       );
       if (itemExists) {
         return prev.map((item) =>
-          item.id === product.id && item.size === size
+          item._id === product._id && item.size === size // <-- E AQUI
             ? { ...item, quantity: item.quantity + 1 }
             : item,
         );
@@ -133,25 +145,29 @@ function LojaPage() {
   const handleIncreaseQuantity = (itemId, itemSize) =>
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === itemId && item.size === itemSize
+        item._id === itemId && item.size === itemSize // <-- MUDANÇA AQUI
           ? { ...item, quantity: item.quantity + 1 }
           : item,
       ),
     );
+
   const handleDecreaseQuantity = (itemId, itemSize) =>
     setCartItems((prev) =>
       prev
         .map((item) =>
-          item.id === itemId && item.size === itemSize
+          item._id === itemId && item.size === itemSize // <-- MUDANÇA AQUI
             ? { ...item, quantity: item.quantity - 1 }
             : item,
         )
         .filter((item) => item.quantity > 0),
     );
+
   const handleRemoveItem = (itemId, itemSize) =>
-    setCartItems((prev) =>
-      prev.filter((item) => !(item.id === itemId && item.size === itemSize)),
+    setCartItems(
+      (prev) =>
+        prev.filter((item) => !(item._id === itemId && item.size === itemSize)), // <-- MUDANÇA AQUI
     );
+
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
     navigate('/checkout', { state: { items: cartItems } });
@@ -233,7 +249,7 @@ function LojaPage() {
           >
             {filteredProducts.map((product) => (
               <div
-                key={product.id}
+                key={product._id}
                 onClick={() => handleProductClick(product)}
                 className="cursor-pointer"
               >

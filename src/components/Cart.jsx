@@ -47,7 +47,7 @@ function Cart({
           ) : (
             cartItems.map((item) => (
               <div
-                key={`${item.id}-${item.size}`}
+                key={`${item._id}-${item.size}`}
                 className="flex items-center gap-4"
               >
                 <img
@@ -61,7 +61,7 @@ function Cart({
                   {/* Controles de quantidade */}
                   <div className="flex items-center gap-3 mt-1">
                     <button
-                      onClick={() => onDecreaseQuantity(item.id, item.size)}
+                      onClick={() => onDecreaseQuantity(item._id, item.size)}
                       className="border rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-100"
                       aria-label="Diminuir quantidade"
                     >
@@ -69,7 +69,7 @@ function Cart({
                     </button>
                     <span>{item.quantity}</span>
                     <button
-                      onClick={() => onIncreaseQuantity(item.id, item.size)}
+                      onClick={() => onIncreaseQuantity(item._id, item.size)}
                       className="border rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-100"
                       aria-label="Aumentar quantidade"
                     >
@@ -85,7 +85,7 @@ function Cart({
                     }).format(item.price * item.quantity)}
                   </p>
                   <button
-                    onClick={() => onRemoveItem(item.id, item.size)}
+                    onClick={() => onRemoveItem(item._id, item.size)}
                     className="text-gray-400 hover:text-red-500"
                     aria-label="Remover item"
                   >
