@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-// import productsData from '../data/produtos.json'; // Não precisamos mais disto
 
 // Componentes
 import AdminModal from '../components/AdminModal';
@@ -30,7 +29,6 @@ function AdminDashboardPage() {
       { id: '1', code: 'BEMVINDO15', discountPercent: 15, isActive: true },
     ],
   });
-  // const [isDataLoaded, setIsDataLoaded] = useState(false); // Não precisamos mais
   const [activeTab, setActiveTab] = useState('products');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -43,15 +41,18 @@ function AdminDashboardPage() {
 
   // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
 
-  // Carrega os dados da API e do localStorage quando a página abre
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/produtos');
+        if (!response.ok) {
+          throw new Error('Falha ao carregar os produtos da API.');
+        }
         const data = await response.json();
         setProducts(data);
       } catch (error) {
         console.error('Falha ao buscar produtos da API:', error);
+        showNotification('Erro ao carregar produtos.', 'error');
       }
     };
     fetchProducts();
@@ -64,6 +65,7 @@ function AdminDashboardPage() {
   }, []);
 
   // --- FUNÇÕES DE LÓGICA ---
+
   const handleLogout = () => navigate('/admin');
 
   const showNotification = (message, type = 'success') => {
@@ -94,12 +96,10 @@ function AdminDashboardPage() {
   };
 
   const handleSaveProduct = async (formData) => {
-    // Se estamos editando (editingProduct não é nulo)
     if (editingProduct) {
       try {
         const response = await fetch(`/api/produtos/${editingProduct._id}`, {
-          // Usa o ID na URL
-          method: 'PUT', // Método para ATUALIZAR
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
         });
@@ -109,12 +109,9 @@ function AdminDashboardPage() {
         }
 
         const updatedProduct = await response.json();
-
-        // Atualiza a lista de produtos na tela
         setProducts((prev) =>
           prev.map((p) => (p._id === editingProduct._id ? updatedProduct : p)),
         );
-
         setIsModalOpen(false);
         showNotification('Produto editado com sucesso!');
       } catch (error) {
@@ -122,7 +119,6 @@ function AdminDashboardPage() {
         showNotification('Erro ao editar produto.', 'error');
       }
     } else {
-      // Se não estamos editando, estamos ADICIONANDO (lógica já existente)
       try {
         const response = await fetch('/api/produtos', {
           method: 'POST',
@@ -136,7 +132,6 @@ function AdminDashboardPage() {
 
         const newProductWithId = await response.json();
         setProducts((prev) => [...prev, newProductWithId]);
-
         setIsModalOpen(false);
         showNotification('Produto adicionado com sucesso!');
       } catch (error) {
@@ -146,29 +141,31 @@ function AdminDashboardPage() {
     }
   };
 
-  // ***** FUNÇÃO DE DELETAR ATUALIZADA *****
   const handleDeleteProduct = async (productIdToDelete) => {
     if (
-      window.confirm(
+      !window.confirm(
         'Tem certeza que deseja remover este produto? A ação não pode ser desfeita.',
       )
     ) {
-      try {
-        const response = await fetch(`/api/produtos/${productIdToDelete}`, {
-          method: 'DELETE',
-        });
+      return;
+    }
 
-        if (!response.ok) {
-          throw new Error('Falha ao deletar o produto');
-        }
+    try {
+      // *** ALTERAÇÃO APLICADA AQUI ***
+      // Usando a URL relativa para padronizar com o resto do código.
+      const response = await fetch(`/api/produtos/${productIdToDelete}`, {
+        method: 'DELETE',
+      });
 
-        // Remove o produto da lista na tela
-        setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
-        showNotification('Produto removido com sucesso!');
-      } catch (error) {
-        console.error('Erro ao deletar produto:', error);
-        showNotification('Erro ao remover produto.', 'error');
+      if (!response.ok) {
+        throw new Error('Falha ao deletar o produto');
       }
+
+      setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
+      showNotification('Produto removido com sucesso!');
+    } catch (error) {
+      console.error('Erro ao deletar produto:', error);
+      showNotification('Erro ao remover produto.', 'error');
     }
   };
 
@@ -191,7 +188,7 @@ function AdminDashboardPage() {
   ];
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
-  // --- RENDERIZAÇÃO (sem alterações aqui) ---
+  // --- RENDERIZAÇÃO ---
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
