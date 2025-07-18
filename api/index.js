@@ -1,13 +1,12 @@
 // api/index.js
 const express = require('express');
-const { MongoClient, ObjectId } = require('mongodb'); // <-- IMPORTANTE: ADICIONAR ObjectId
+const { MongoClient, ObjectId } = require('mongodb');
 const app = express();
 
 const uri = process.env.MONGODB_URI;
 app.use(express.json());
 
 // --- ROTA GET (LER PRODUTOS) ---
-// (nenhuma alteração aqui)
 app.get('/api/produtos', async (req, res) => {
   if (!uri)
     return res
@@ -30,7 +29,6 @@ app.get('/api/produtos', async (req, res) => {
 });
 
 // --- ROTA POST (ADICIONAR PRODUTO) ---
-// (nenhuma alteração aqui)
 app.post('/api/produtos', async (req, res) => {
   if (!uri)
     return res
@@ -53,7 +51,7 @@ app.post('/api/produtos', async (req, res) => {
   }
 });
 
-// --- ROTA PUT (EDITAR PRODUTO) - NOVO ---
+// --- ROTA PUT (EDITAR PRODUTO) ---
 app.put('/api/produtos/:id', async (req, res) => {
   if (!uri)
     return res
@@ -61,10 +59,14 @@ app.put('/api/produtos/:id', async (req, res) => {
       .json({ message: 'String de conexão não configurada.' });
 
   const client = new MongoClient(uri);
-  const { id } = req.params; // Pega o ID da URL
-  const updatedData = req.body; // Pega os novos dados do corpo da requisição
+  const { id } = req.params;
+  const updatedData = req.body;
 
-  // Remove o campo _id do corpo para não tentar atualizar o próprio _id
+  // VERIFICAÇÃO DE SEGURANÇA: Checa se o ID é válido antes de continuar
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'ID de produto inválido.' });
+  }
+
   delete updatedData._id;
 
   try {
@@ -73,19 +75,56 @@ app.put('/api/produtos/:id', async (req, res) => {
     const productsCollection = database.collection('produtos');
 
     const result = await productsCollection.updateOne(
-      { _id: new ObjectId(id) }, // Encontra o produto pelo seu _id
-      { $set: updatedData }, // Define os novos dados
+      { _id: new ObjectId(id) },
+      { $set: updatedData },
     );
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ message: 'Produto não encontrado' });
     }
-
-    res.status(200).json({ ...updatedData, _id: id }); // Retorna o produto atualizado
+    res.status(200).json({ ...updatedData, _id: id });
   } catch (error) {
     res
       .status(500)
       .json({ message: 'Erro ao editar produto', error: error.message });
+  } finally {
+    await client.close();
+  }
+});
+
+// --- ROTA DELETE (APAGAR PRODUTO) - NOVO ---
+app.delete('/api/produtos/:id', async (req, res) => {
+  if (!uri)
+    return res
+      .status(500)
+      .json({ message: 'String de conexão não configurada.' });
+
+  const client = new MongoClient(uri);
+  const { id } = req.params;
+
+  // VERIFICAÇÃO DE SEGURANÇA: Checa se o ID é válido
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'ID de produto inválido.' });
+  }
+
+  try {
+    await client.connect();
+    const database = client.db('belezaEmMovDB');
+    const productsCollection = database.collection('produtos');
+
+    const result = await productsCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Produto não encontrado' });
+    }
+
+    res.status(200).json({ message: 'Produto deletado com sucesso' });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Erro ao deletar produto', error: error.message });
   } finally {
     await client.close();
   }

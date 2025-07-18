@@ -146,10 +146,30 @@ function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteProduct = (productIdToDelete) => {
-    // A lógica de DELETAR também precisará de uma chamada à API.
-    // Faremos isso depois da edição.
-    alert('A funcionalidade de deletar ainda será implementada!');
+  // ***** FUNÇÃO DE DELETAR ATUALIZADA *****
+  const handleDeleteProduct = async (productIdToDelete) => {
+    if (
+      window.confirm(
+        'Tem certeza que deseja remover este produto? A ação não pode ser desfeita.',
+      )
+    ) {
+      try {
+        const response = await fetch(`/api/produtos/${productIdToDelete}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao deletar o produto');
+        }
+
+        // Remove o produto da lista na tela
+        setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
+        showNotification('Produto removido com sucesso!');
+      } catch (error) {
+        console.error('Erro ao deletar produto:', error);
+        showNotification('Erro ao remover produto.', 'error');
+      }
+    }
   };
 
   // --- PREPARAÇÃO DE DADOS ---
