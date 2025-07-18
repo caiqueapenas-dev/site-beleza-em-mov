@@ -1,4 +1,4 @@
-// api/index.js
+// api/index.cjs
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const app = express();
