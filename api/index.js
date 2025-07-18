@@ -1,17 +1,38 @@
-// /api/index.js
-
-// Importante: Instale o express com 'npm install express'
+// api/index.js
 const express = require('express');
+const { MongoClient } = require('mongodb');
 const app = express();
 
-// Rota de teste
-app.get('/api/teste', (req, res) => {
-  res.send('A API está funcionando na Vercel!');
+// Pega a string de conexão que você configurou na Vercel
+const uri = process.env.MONGODB_URI;
+
+// Rota para buscar os produtos no banco de dados
+app.get('/api/produtos', async (req, res) => {
+  // Garante que a URI foi configurada
+  if (!uri) {
+    return res
+      .status(500)
+      .json({ message: 'String de conexão do MongoDB não configurada.' });
+  }
+
+  const client = new MongoClient(uri);
+
+  try {
+    await client.connect();
+    // Use o nome do seu banco (se não especificou, pode ser 'test') e da coleção
+    const database = client.db('belezaEmMovDB');
+    const productsCollection = database.collection('produtos');
+
+    const products = await productsCollection.find({}).toArray();
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: 'Erro ao buscar produtos', error: error.message });
+  } finally {
+    await client.close();
+  }
 });
 
-// Futuramente, suas rotas de produtos virão aqui
-// app.get('/api/produtos', (req, res) => { ... });
-// app.post('/api/produtos', (req, res) => { ... });
-
-// Exporta o app para a Vercel
 module.exports = app;
