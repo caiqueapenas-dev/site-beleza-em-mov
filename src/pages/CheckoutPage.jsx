@@ -159,7 +159,7 @@ aguardando contato para finalizar a compra.
   };
   
   if (cartItems.length === 0) {
-    return null; // Evita renderizar a página antes do redirecionamento
+    return null; // evita renderizar a página antes do redirecionamento
   }
 
 

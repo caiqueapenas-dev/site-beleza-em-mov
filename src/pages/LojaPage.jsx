@@ -71,7 +71,7 @@ function LojaPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, currentPage]);
 
-  // carrega outras informações do localstorage
+  // carrega outras informações
   useEffect(() => {
     const savedRequests = localStorage.getItem('productRequests');
     if (savedRequests) setRequests(JSON.parse(savedRequests));

@@ -3,16 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-// Componentes
+// componentes
 import AdminModal from '../components/AdminModal';
 import ProductForm from '../components/ProductForm';
 import Notification from '../components/Notification';
 import PromotionSettings from '../components/PromotionSettings';
 import ProductsTable from '../components/ProductsTable';
 import RequestsTable from '../components/RequestsTable';
+import OrdersDashboard from '../components/OrdersDashboard'; // import do novo componente
 
 function AdminDashboardPage() {
-  // --- ESTADOS DO COMPONENTE ---
+  // --- estados do componente ---
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -22,8 +23,8 @@ function AdminDashboardPage() {
     banner: {
       isActive: false,
       text: '',
-      textColor: '#FFFFFF',
-      backgroundColor: '#06B6D4',
+      textColor: '#ffffff',
+      backgroundColor: '#06b6d4',
     },
     coupons: [],
   });
@@ -37,17 +38,17 @@ function AdminDashboardPage() {
   const [adminSearchTerm, setAdminSearchTerm] = useState('');
   const [adminCategory, setAdminCategory] = useState('todos');
 
-  // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
+  // --- efeitos de carregamento e salvamento ---
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/produtos');
         if (!response.ok) {
-          throw new Error('falha ao carregar os produtos da api.');
+          throw new error('falha ao carregar os produtos da api.');
         }
         const data = await response.json();
-        setProducts(data.products); // Ajustado para pegar o array de produtos da resposta
+        setProducts(data.products);
       } catch (error) {
         console.error('falha ao buscar produtos da api:', error);
         showNotification('erro ao carregar produtos.', 'error');
@@ -71,7 +72,7 @@ function AdminDashboardPage() {
     fetchPromotions();
   }, []);
 
-  // --- FUNÇÕES DE LÓGICA ---
+  // --- funções de lógica ---
 
   const handleLogout = () => navigate('/admin');
 
@@ -88,7 +89,7 @@ function AdminDashboardPage() {
       req.id === requestId ? { ...req, seen: true } : req,
     );
     setRequests(updatedRequests);
-    localStorage.setItem('productRequests', JSON.stringify(updatedRequests)); // Salva no localStorage também
+    localStorage.setItem('productRequests', JSON.stringify(updatedRequests));
     showNotification('solicitação marcada como vista!');
   };
 
@@ -103,48 +104,36 @@ function AdminDashboardPage() {
   };
 
   const handleSaveProduct = async (formData) => {
-    if (editingProduct) {
-      try {
-        const response = await fetch(`/api/produtos/${editingProduct._id}`, {
-          method: 'put',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
+    const method = editingProduct ? 'put' : 'post';
+    const url = editingProduct
+      ? `/api/produtos/${editingProduct._id}`
+      : '/api/produtos';
 
-        if (!response.ok) {
-          throw new Error('a resposta do servidor não foi ok');
-        }
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-        const updatedProduct = await response.json();
+      if (!response.ok) {
+        throw new error(`falha ao ${method === 'put' ? 'editar' : 'adicionar'} produto`);
+      }
+
+      const savedProduct = await response.json();
+      if (editingProduct) {
         setProducts((prev) =>
-          prev.map((p) => (p._id === editingProduct._id ? updatedProduct : p)),
+          prev.map((p) => (p._id === editingProduct._id ? savedProduct : p)),
         );
-        setIsModalOpen(false);
         showNotification('produto editado com sucesso!');
-      } catch (error) {
-        console.error('falha ao editar produto:', error);
-        showNotification('erro ao editar produto.', 'error');
-      }
-    } else {
-      try {
-        const response = await fetch('/api/produtos', {
-          method: 'post',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) {
-          throw new Error('a resposta do servidor não foi ok');
-        }
-
-        const newProductWithId = await response.json();
-        setProducts((prev) => [...prev, newProductWithId]);
-        setIsModalOpen(false);
+      } else {
+        setProducts((prev) => [...prev, savedProduct]);
         showNotification('produto adicionado com sucesso!');
-      } catch (error) {
-        console.error('falha ao adicionar produto:', error);
-        showNotification('erro ao adicionar produto.', 'error');
       }
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(`falha ao salvar produto:`, error);
+      showNotification(`erro ao ${method === 'put' ? 'editar' : 'adicionar'} produto.`, 'error');
     }
   };
 
@@ -163,7 +152,7 @@ function AdminDashboardPage() {
       });
 
       if (!response.ok) {
-        throw new Error('falha ao deletar o produto');
+        throw new error('falha ao deletar o produto');
       }
 
       setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
@@ -189,8 +178,7 @@ function AdminDashboardPage() {
     }
   };
 
-
-  // --- PREPARAÇÃO DE DADOS ---
+  // --- preparação de dados ---
   const allNames = [...new Set(products.map((p) => p.name))];
   const allMaterials = [
     ...new Set(products.map((p) => p.material).filter(Boolean)),
@@ -209,7 +197,7 @@ function AdminDashboardPage() {
   ];
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
-  // --- RENDERIZAÇÃO ---
+  // --- renderização ---
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -222,7 +210,7 @@ function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <span className="text-gray-600">bem-vindo, admin!</span>
+          <span className="text-gray-600">bem-vindo, {user?.name || 'admin'}!</span>
           <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
@@ -269,6 +257,16 @@ function AdminDashboardPage() {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'orders'
+                ? 'border-cyan-500 text-cyan-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            pedidos
+          </button>
         </nav>
       </div>
 
@@ -303,6 +301,12 @@ function AdminDashboardPage() {
               requests={requests}
               onMarkAsSeen={handleMarkRequestAsSeen}
             />
+          </div>
+        )}
+
+        {activeTab === 'orders' && (
+          <div className="animate-fade-in">
+            <OrdersDashboard allProducts={products} />
           </div>
         )}
       </div>
