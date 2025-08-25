@@ -1,44 +1,56 @@
+// src/components/ProductModal.jsx
 import React, { useState, useEffect } from 'react';
 import { X, Star } from 'lucide-react';
+import { Carousel } from 'react-responsive-carousel';
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; // importa os estilos do carrossel
 
-// Componente auxiliar para renderizar as estrelas de avaliação
+// componente auxiliar para renderizar as estrelas de avaliação
 const StarRating = ({ rating }) => {
   const stars = Array.from({ length: 5 }, (_, i) => (
     <Star
       key={i}
-      className={`w-5 h-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+      className={`w-5 h-5 ${
+        i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+      }`}
     />
   ));
   return <div className="flex">{stars}</div>;
 };
 
-function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProductClick }) {
-  // --- ESTADOS DO MODAL ---
+function ProductModal({
+  product,
+  onClose,
+  onAddToCart,
+  onRequestSize,
+  relatedProducts,
+  onProductClick,
+}) {
+  // --- estados do modal ---
   const [selectedSize, setSelectedSize] = useState(null);
   const [customSize, setCustomSize] = useState('');
   const [isCustomRequestVisible, setIsCustomRequestVisible] = useState(false);
   const [requesterInfo, setRequesterInfo] = useState({ name: '', phone: '' });
 
-  // Efeito para resetar o estado sempre que um novo produto for aberto
+  // efeito para resetar o estado sempre que um novo produto for aberto
   useEffect(() => {
     setSelectedSize(null);
     setIsCustomRequestVisible(false);
     setCustomSize('');
-    setRequesterInfo({ name: '', phone: '' }); // Adicione esta linha
+    setRequesterInfo({ name: '', phone: '' });
   }, [product]);
 
-  // Se nenhum produto estiver selecionado, não renderize o modal
+  // se nenhum produto estiver selecionado, não renderize o modal
   if (!product) {
     return null;
   }
-  // Lógica de preço com desconto
+  // lógica de preço com desconto
   const hasDiscount =
     product.desconto_percentual && product.desconto_percentual > 0;
   const currentPrice = hasDiscount
     ? product.price * (1 - product.desconto_percentual / 100)
     : product.price;
 
-  // Função para o botão principal de adicionar ao carrinho
+  // função para o botão principal de adicionar ao carrinho
   const handleAddToCartClick = () => {
     if (selectedSize) {
       onAddToCart(product, selectedSize);
@@ -47,20 +59,42 @@ function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProduc
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      {/* Overlay para fechar o modal ao clicar fora */}
+      {/* overlay para fechar o modal ao clicar fora */}
       <div className="absolute inset-0" onClick={onClose}></div>
 
       <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row relative overflow-hidden animate-fade-in">
-        {/* Lado Esquerdo: Imagem do Produto */}
+        {/* lado esquerdo: carrossel de imagens do produto */}
         <div className="w-full md:w-1/2">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-80 object-cover md:h-full"
-          />
+          <Carousel
+            showThumbs={false}
+            showStatus={false}
+            infiniteLoop
+            useKeyboardArrows
+            className="product-carousel"
+          >
+            {product.images && product.images.length > 0 ? (
+              product.images.map((url) => (
+                <div key={url}>
+                  <img
+                    src={url}
+                    alt={product.name}
+                    className="w-full h-80 object-cover md:h-full"
+                  />
+                </div>
+              ))
+            ) : (
+              <div>
+                <img
+                  src="https://via.placeholder.com/600"
+                  alt="imagem indisponível"
+                  className="w-full h-80 object-cover md:h-full"
+                />
+              </div>
+            )}
+          </Carousel>
         </div>
 
-        {/* Lado Direito: Detalhes do Produto */}
+        {/* lado direito: detalhes do produto */}
         <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col overflow-y-auto">
           <button
             onClick={onClose}
@@ -69,22 +103,22 @@ function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProduc
             <X className="w-6 h-6" />
           </button>
 
-          {/* Bloco de Informações Principais */}
+          {/* bloco de informações principais */}
           <div className="mb-6">
             <h2 className="text-3xl font-bold text-gray-900">{product.name}</h2>
             <div className="my-3">
               <div className="flex items-baseline gap-3">
                 <p className="text-4xl font-light text-gray-800">
-                  {new Intl.NumberFormat('pt-BR', {
+                  {new Intl.NumberFormat('pt-br', {
                     style: 'currency',
-                    currency: 'BRL',
+                    currency: 'brl',
                   }).format(currentPrice)}
                 </p>
                 {hasDiscount && (
                   <p className="text-2xl font-light text-gray-400 line-through">
-                    {new Intl.NumberFormat('pt-BR', {
+                    {new Intl.NumberFormat('pt-br', {
                       style: 'currency',
-                      currency: 'BRL',
+                      currency: 'brl',
                     }).format(product.price)}
                   </p>
                 )}
@@ -92,134 +126,55 @@ function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProduc
             </div>
           </div>
 
-          {/* Bloco de Conteúdo (com scroll se necessário) */}
+          {/* bloco de conteúdo (com scroll se necessário) */}
           <div className="flex-grow space-y-6">
-            {/* Seção de Seleção de Tamanhos */}
+            {/* seção de seleção de tamanhos */}
             <div>
               <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                SELECIONE O TAMANHO
+                selecione o tamanho
               </h3>
               <div className="flex flex-wrap gap-3 items-center">
-                {/* Mapeia dinamicamente os tamanhos do estoque */}
                 {product.estoque &&
                   Object.keys(product.estoque).map((size) => {
                     const isInStock = product.estoque[size] > 0;
-
-                    // Renderiza botão SELECIONÁVEL se tiver estoque
-                    if (isInStock) {
-                      return (
+                    return isInStock ? (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`border rounded-md w-14 h-12 transition-colors ${
+                          selectedSize === size
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'border-gray-400 hover:bg-gray-200'
+                        }`}
+                      >
+                        {size.toUpperCase()}
+                      </button>
+                    ) : (
+                      <div
+                        key={size}
+                        className="relative"
+                        title="produto esgotado"
+                      >
                         <button
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
-                          className={`border rounded-md w-14 h-12 transition-colors ${selectedSize === size ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-400 hover:bg-gray-200'}`}
+                          disabled
+                          className="border rounded-md w-14 h-12 bg-gray-100 text-gray-400 cursor-not-allowed"
                         >
-                          {size}
+                          {size.toUpperCase()}
                         </button>
-                      );
-                    }
-                    // Renderiza botão DESABILITADO se o estoque for 0
-                    else {
-                      return (
-                        <div
-                          key={size}
-                          className="relative"
-                          title="Produto esgotado"
-                        >
-                          <button
-                            disabled
-                            className="border rounded-md w-14 h-12 bg-gray-100 text-gray-400 cursor-not-allowed"
-                          >
-                            {size}
-                          </button>
-                          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-400 transform -rotate-12"></div>
-                        </div>
-                      );
-                    }
+                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-400 transform -rotate-12"></div>
+                      </div>
+                    );
                   })}
-
-                {/* Botão para revelar a opção de solicitar outro tamanho */}
-                <button
-                  onClick={() => setIsCustomRequestVisible(true)}
-                  title="Solicitar um tamanho diferente"
-                  className="text-sm text-cyan-700 font-semibold hover:underline px-2"
-                >
-                  Não achou o tamanho que procurava? Solicite aqui.
-                </button>
               </div>
-
-              {/* Seção de solicitação customizada (só aparece se 'isCustomRequestVisible' for true) */}
-              {isCustomRequestVisible && (
-                <div className="mt-4 pt-4 border-t animate-fade-in space-y-3">
-                  <label className="text-sm font-semibold text-gray-600 mb-2 block">
-                    Informe seus dados para avisarmos sobre a disponibilidade:
-                  </label>
-                  <input
-                    type="text"
-                    value={requesterInfo.name}
-                    onChange={(e) =>
-                      setRequesterInfo((prev) => ({
-                        ...prev,
-                        name: e.target.value,
-                      }))
-                    }
-                    placeholder="Seu nome"
-                    className="w-full p-2 border rounded-md"
-                  />
-                  <input
-                    type="tel"
-                    value={requesterInfo.phone}
-                    onChange={(e) =>
-                      setRequesterInfo((prev) => ({
-                        ...prev,
-                        phone: e.target.value,
-                      }))
-                    }
-                    placeholder="Seu WhatsApp"
-                    className="w-full p-2 border rounded-md"
-                  />
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customSize}
-                      onChange={(e) =>
-                        setCustomSize(e.target.value.toUpperCase())
-                      }
-                      placeholder="Digite o tamanho (Ex: PP, 38)"
-                      className="w-full p-2 border rounded-md"
-                    />
-                    <button
-                      onClick={() => {
-                        if (
-                          customSize &&
-                          requesterInfo.name &&
-                          requesterInfo.phone
-                        ) {
-                          // Passa as novas informações para a função
-                          onRequestSize(product, customSize, requesterInfo);
-                        }
-                      }}
-                      disabled={
-                        !customSize ||
-                        !requesterInfo.name ||
-                        !requesterInfo.phone
-                      }
-                      className="px-4 py-2 bg-cyan-600 text-white font-bold rounded-md whitespace-nowrap hover:bg-cyan-700 disabled:bg-gray-400"
-                    >
-                      Solicitar
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Seção de Descrição */}
+            {/* seção de descrição */}
             <div>
               <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                DESCRIÇÃO
+                descrição
               </h3>
               <p className="text-gray-700 text-base">{product.description}</p>
             </div>
-
 
             {/* seção de produtos relacionados */}
             {relatedProducts && relatedProducts.length > 0 && (
@@ -235,7 +190,11 @@ function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProduc
                       className="cursor-pointer group text-center"
                     >
                       <img
-                        src={related.image}
+                        src={
+                          related.images && related.images.length > 0
+                            ? related.images[0]
+                            : 'https://via.placeholder.com/150'
+                        }
                         alt={related.name}
                         className="w-full h-auto object-cover rounded-md aspect-square group-hover:opacity-80 transition-opacity"
                       />
@@ -245,17 +204,16 @@ function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProduc
                 </div>
               </div>
             )}
-
           </div>
 
-          {/* Botão de Adicionar ao Carrinho (sempre no final) */}
+          {/* botão de adicionar ao carrinho (sempre no final) */}
           <div className="mt-auto pt-6">
             <button
               onClick={handleAddToCartClick}
               disabled={!selectedSize}
               className="w-full bg-cyan-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              Adicionar ao Carrinho
+              adicionar ao carrinho
             </button>
           </div>
         </div>
