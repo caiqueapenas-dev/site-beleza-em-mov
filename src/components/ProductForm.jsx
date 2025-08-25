@@ -24,6 +24,8 @@ function ProductForm({
     palavras_chave: initialData.palavras_chave || '',
   });
 
+  const [isUploading, setIsUploading] = useState(false);
+
   const [newSizeName, setNewSizeName] = useState('');
   const [newSizeQty, setNewSizeQty] = useState(0);
 
@@ -44,6 +46,31 @@ function ProductForm({
         [name]: parseInt(value, 10) || 0,
       },
     }));
+  };
+const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formDataApi = new FormData();
+    formDataApi.append('file', file);
+    formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // ⚠️ substitua pelo nome do seu preset
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // ⚠️ substitua pelo seu cloud name
+        {
+          method: 'POST',
+          body: formDataApi,
+        },
+      );
+      const data = await response.json();
+      setFormData((prev) => ({ ...prev, image: data.secure_url }));
+    } catch (error) {
+      console.error('erro ao enviar imagem:', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleAddCustomSize = () => {
@@ -97,6 +124,28 @@ function ProductForm({
         />
       </div>
 
+      {/* upload de imagem e url */}
+     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+       <div>
+         <label className="block text-sm font-medium">upload da imagem</label>
+         <input
+           type="file"
+           onChange={handleImageUpload}
+           className="w-full mt-1 p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
+         />
+       </div>
+       <FormField
+         label="ou cole a url da imagem"
+         name="image"
+         type="text"
+         value={formData.image}
+         onChange={handleChange}
+         required
+         disabled={isUploading}
+         placeholder={isUploading ? 'enviando...' : 'url da imagem'}
+       />
+     </div>
+
       {/* Preço e Avaliação */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -131,15 +180,7 @@ function ProductForm({
         placeholder="Ex: 15 para 15% de desconto"
       />
 
-      {/* URL da Imagem */}
-      <FormField
-        label="URL da Imagem"
-        name="image"
-        type="text"
-        value={formData.image}
-        onChange={handleChange}
-        required
-      />
+      
 
       <FormField
         label="Descrição do Produto"
