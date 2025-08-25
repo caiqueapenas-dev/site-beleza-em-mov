@@ -14,7 +14,7 @@ function ProductForm({
   const [formData, setFormData] = useState({
     name: initialData.name || '',
     categoria: initialData.categoria || 'top',
-    price: initialData.price * 100 || 0,
+    price: (initialData.price || 0) * 100,
     desconto_percentual: initialData.desconto_percentual || 0,
     image: initialData.image || '',
     material: initialData.material || '',
@@ -54,11 +54,11 @@ function ProductForm({
     setIsUploading(true);
     const formDataApi = new FormData();
     formDataApi.append('file', file);
-    formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // ⚠️ seu upload preset aqui
+    formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // seu upload preset
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // ⚠️ seu cloud name aqui
+        `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // seu cloud name
         {
           method: 'post',
           body: formDataApi,
@@ -153,32 +153,39 @@ function ProductForm({
         type="number"
         value={formData.desconto_percentual}
         onChange={handleChange}
-        min="1"
+        min="0"
         max="100"
         placeholder="ex: 15 para 15% de desconto"
       />
 
-      {/* upload de imagem e url */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-        <div>
-          <label className="block text-sm font-medium">upload da imagem</label>
-          <input
-            type="file"
-            onChange={handleImageUpload}
-            className="w-full mt-1 p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
-          />
+      {/* --- NOVO CAMPO DE UPLOAD DE IMAGEM --- */}
+      <div>
+        <label className="block text-sm font-medium">imagem do produto</label>
+        <div className="mt-1 flex items-center gap-4">
+          {formData.image && (
+            <img
+              src={formData.image}
+              alt="pré-visualização"
+              className="w-20 h-20 rounded-md object-cover"
+            />
+          )}
+          <label className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
+            <span>{isUploading ? 'enviando...' : 'escolher arquivo'}</span>
+            <input
+              type="file"
+              onChange={handleImageUpload}
+              className="sr-only"
+              disabled={isUploading}
+            />
+          </label>
+          {!formData.image && !isUploading && (
+            <span className="text-sm text-gray-500">
+              nenhuma imagem selecionada.
+            </span>
+          )}
         </div>
-        <FormField
-          label="ou cole a url da imagem"
-          name="image"
-          type="text"
-          value={formData.image}
-          onChange={handleChange}
-          required
-          disabled={isUploading}
-          placeholder={isUploading ? 'enviando...' : 'url da imagem'}
-        />
       </div>
+      {/* --- FIM DO NOVO CAMPO --- */}
 
       <FormField
         label="descrição do produto"
@@ -218,7 +225,7 @@ function ProductForm({
           {Object.keys(formData.estoque).map((size) => (
             <div key={size}>
               <label className="block text-xs font-medium text-gray-500">
-                {size}
+                {size.toUpperCase()}
               </label>
               <input
                 type="number"
@@ -247,7 +254,9 @@ function ProductForm({
           <input
             type="number"
             value={newSizeQty}
-            onChange={(e) => setNewSizeQty(parseInt(e.target.value, 10))}
+            onChange={(e) =>
+              setNewSizeQty(parseInt(e.target.value, 10) || 0)
+            }
             placeholder="qtd"
             className="w-24 p-2 border rounded-md"
           />
@@ -283,7 +292,7 @@ function ProductForm({
 
 // componente reutilizável para campos de formulário
 function FormField({ label, name, as = 'input', ...rest }) {
-  const Component = as; // 'as' pode ser 'input' ou 'textarea'
+  const Component = as;
   return (
     <div>
       <label className="block text-sm font-medium">{label}</label>
