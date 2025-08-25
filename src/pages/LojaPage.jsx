@@ -76,8 +76,16 @@ function LojaPage() {
     const savedRequests = localStorage.getItem('productRequests');
     if (savedRequests) setRequests(JSON.parse(savedRequests));
 
-    const savedPromos = localStorage.getItem('promoSettings');
-    if (savedPromos) setPromoSettings(JSON.parse(savedPromos));
+    const fetchPromotions = async () => {
+      try {
+        const response = await fetch('/api/promotions');
+        const data = await response.json();
+        setPromoSettings(data);
+      } catch (error) {
+        console.error('falha ao buscar promoções na loja:', error);
+      }
+    };
+    fetchPromotions();
   }, []);
 
   // salva o carrinho no localstorage sempre que ele muda

@@ -1,5 +1,5 @@
-// Substitua o conteúdo do seu CheckoutPage.jsx por este:
-import React, { useState, useEffect } from 'react'; // Adicionar useEffect
+// src/pages/CheckoutPage.jsx
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   CreditCard,
@@ -7,20 +7,21 @@ import {
   DollarSign,
   Tag,
   CheckCircle,
-} from 'lucide-react'; // Adicionar Tag e CheckCircle
+} from 'lucide-react';
 
 function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const cartItems = location.state?.items || [];
 
-  // Se não houver itens, redireciona de volta para a loja
-  if (cartItems.length === 0) {
-    navigate('/loja');
-    return null;
-  }
+  // se não houver itens, redireciona de volta para a loja
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate('/loja');
+    }
+  }, [cartItems, navigate]);
 
-  // Estados para o formulário
+  // estados para o formulário
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -34,12 +35,18 @@ function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMessage, setCouponMessage] = useState({ text: '', type: '' });
 
-  // Carregar cupons do localStorage
+  // carregar cupons da api
   useEffect(() => {
-    const savedPromos = localStorage.getItem('promoSettings');
-    if (savedPromos) {
-      setPromoSettings(JSON.parse(savedPromos));
-    }
+    const fetchPromotions = async () => {
+      try {
+        const response = await fetch('/api/promotions');
+        const data = await response.json();
+        setPromoSettings(data);
+      } catch (error) {
+        console.error('falha ao buscar promoções no checkout:', error);
+      }
+    };
+    fetchPromotions();
   }, []);
 
   const handleInputChange = (e) => {
@@ -52,7 +59,7 @@ function CheckoutPage() {
     0,
   );
 
-  // Calcula o desconto e o total
+  // calcula o desconto e o total
   const discountAmount = appliedCoupon
     ? subtotal * (appliedCoupon.discountPercent / 100)
     : 0;
@@ -62,7 +69,7 @@ function CheckoutPage() {
     setCouponMessage({ text: '', type: '' });
     if (appliedCoupon) {
       setCouponMessage({
-        text: 'Apenas um cupom pode ser aplicado.',
+        text: 'apenas um cupom pode ser aplicado.',
         type: 'error',
       });
       return;
@@ -74,60 +81,87 @@ function CheckoutPage() {
     if (foundCoupon) {
       setAppliedCoupon(foundCoupon);
       setCouponMessage({
-        text: `Cupom de ${foundCoupon.discountPercent}% aplicado!`,
+        text: `cupom de ${foundCoupon.discountPercent}% aplicado!`,
         type: 'success',
       });
     } else {
-      setCouponMessage({ text: 'Cupom inválido ou expirado.', type: 'error' });
+      setCouponMessage({ text: 'cupom inválido ou expirado.', type: 'error' });
     }
   };
 
   const handleSubmitOrder = () => {
-    // Validação simples
+    // validação simples
     if (!customerInfo.name || !customerInfo.phone || !paymentMethod) {
       alert(
-        'Por favor, preencha seu nome, telefone e escolha uma forma de pagamento.',
+        'por favor, preencha seu nome, telefone e escolha uma forma de pagamento.',
       );
       return;
     }
 
-    // Monta a lista de itens para a mensagem
+    // monta a lista de itens para a mensagem
     const itemsList = cartItems
       .map(
         (item) =>
-          `- ${item.name} (Tam: ${item.size}, Qtd: ${item.quantity}) - ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price * item.quantity)}`,
+          `- ${item.name} (tam: ${item.size}, qtd: ${
+            item.quantity
+          }) - ${new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(item.price * item.quantity)}`,
       )
       .join('\n');
 
     const message = `
-*NOVO PEDIDO REALIZADO PELO SITE!*
+*novo pedido realizado pelo site!*
 
-*DADOS DO CLIENTE:*
-*Nome:* ${customerInfo.name}
-*Telefone:* ${customerInfo.phone}
-*Email:* ${customerInfo.email || 'Não informado'}
-*CPF:* ${customerInfo.cpf || 'Não informado'}
+*dados do cliente:*
+*nome:* ${customerInfo.name}
+*telefone:* ${customerInfo.phone}
+*email:* ${customerInfo.email || 'não informado'}
+*cpf:* ${customerInfo.cpf || 'não informado'}
 
 -----------------------------------
 
-*RESUMO DO PEDIDO:*
+*resumo do pedido:*
 ${itemsList}
 
 -----------------------------------
-*Subtotal:* ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(subtotal)}
-${appliedCoupon ? `*Cupom Aplicado (${appliedCoupon.code}):* -${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(discountAmount)}\n` : ''}
-*Total:* *${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}*
-*Forma de Pagamento Escolhida:* ${paymentMethod}
+*subtotal:* ${new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(subtotal)}
+${
+  appliedCoupon
+    ? `*cupom aplicado (${
+        appliedCoupon.code
+      }):* -${new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(discountAmount)}\n`
+    : ''
+}
+*total:* *${new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(total)}*
+*forma de pagamento escolhida:* ${paymentMethod}
 
-Aguardando contato para finalizar a compra.
+aguardando contato para finalizar a compra.
     `;
 
-    // Cria o link do WhatsApp
-    const whatsappUrl = `https://wa.me/5575983059101?text=${encodeURIComponent(message)}`;
+    // cria o link do whatsapp
+    const whatsappUrl = `https://wa.me/5575983059101?text=${encodeURIComponent(
+      message,
+    )}`;
 
-    // Abre o link em uma nova aba
+    // abre o link em uma nova aba
     window.open(whatsappUrl, '_blank');
   };
+  
+  if (cartItems.length === 0) {
+    return null; // Evita renderizar a página antes do redirecionamento
+  }
+
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -137,24 +171,24 @@ Aguardando contato para finalizar a compra.
             to="/loja"
             className="text-3xl font-bold tracking-tighter text-cyan-600"
           >
-            BeM
+            bem
           </Link>
           <Link to="/loja" className="text-sm text-gray-600 hover:underline">
-            Voltar para a loja
+            voltar para a loja
           </Link>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Lado Esquerdo: Formulário */}
+        {/* lado esquerdo: formulário */}
         <div className="bg-white p-8 rounded-lg shadow">
-          <h2 className="text-2xl font-bold mb-6">Seus Dados</h2>
+          <h2 className="text-2xl font-bold mb-6">seus dados</h2>
           <form className="space-y-4">
-            {/* Inputs para nome, email, telefone, cpf */}
+            {/* inputs para nome, email, telefone, cpf */}
             <input
               type="text"
               name="name"
-              placeholder="Nome Completo"
+              placeholder="nome completo"
               onChange={handleInputChange}
               className="w-full p-3 border rounded-md"
               required
@@ -162,7 +196,7 @@ Aguardando contato para finalizar a compra.
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder="email"
               onChange={handleInputChange}
               className="w-full p-3 border rounded-md"
               required
@@ -170,7 +204,7 @@ Aguardando contato para finalizar a compra.
             <input
               type="tel"
               name="phone"
-              placeholder="Telefone (WhatsApp)"
+              placeholder="telefone (whatsapp)"
               onChange={handleInputChange}
               className="w-full p-3 border rounded-md"
               required
@@ -178,52 +212,56 @@ Aguardando contato para finalizar a compra.
             <input
               type="text"
               name="cpf"
-              placeholder="CPF"
+              placeholder="cpf"
               onChange={handleInputChange}
               className="w-full p-3 border rounded-md"
               required
             />
           </form>
 
-          <h2 className="text-2xl font-bold mt-8 mb-4">Forma de Pagamento</h2>
+          <h2 className="text-2xl font-bold mt-8 mb-4">forma de pagamento</h2>
           <div className="space-y-3">
-            {/* Opções de Pagamento */}
-            {['Pix', 'Cartão de Crédito', 'Dinheiro'].map((method) => (
+            {/* opções de pagamento */}
+            {['pix', 'cartão de crédito', 'dinheiro'].map((method) => (
               <button
                 key={method}
                 onClick={() => setPaymentMethod(method)}
-                className={`w-full flex items-center gap-3 p-4 border rounded-lg text-left ${paymentMethod === method ? 'border-cyan-500 ring-2 ring-cyan-500' : ''}`}
+                className={`w-full flex items-center gap-3 p-4 border rounded-lg text-left capitalize ${
+                  paymentMethod === method
+                    ? 'border-cyan-500 ring-2 ring-cyan-500'
+                    : ''
+                }`}
               >
-                {method === 'Pix' && <Smartphone />}
-                {method === 'Cartão de Crédito' && <CreditCard />}
-                {method === 'Dinheiro' && <DollarSign />}
+                {method === 'pix' && <Smartphone />}
+                {method === 'cartão de crédito' && <CreditCard />}
+                {method === 'dinheiro' && <DollarSign />}
                 {method}
               </button>
             ))}
           </div>
           <div className="mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-r-lg">
-            <p className="font-bold">Atenção</p>
+            <p className="font-bold">atenção</p>
             <p className="text-sm">
-              O pedido será finalizado e o pagamento combinado através do
-              WhatsApp.
+              o pedido será finalizado e o pagamento combinado através do
+              whatsapp.
             </p>
           </div>
         </div>
 
-        {/* Lado Direito: Resumo do Pedido */}
+        {/* lado direito: resumo do pedido */}
         <div className="bg-white p-8 rounded-lg shadow h-fit">
-          <h2 className="text-2xl font-bold mb-6">Resumo do Pedido</h2>
+          <h2 className="text-2xl font-bold mb-6">resumo do pedido</h2>
           <div className="space-y-4 border-b pb-4">
             {cartItems.map((item) => (
               <div
-                key={`${item.id}-${item.size}`}
+                key={`${item._id}-${item.size}`}
                 className="flex justify-between items-center text-sm"
               >
                 <div>
                   <p className="font-semibold">
                     {item.name} ({item.size})
                   </p>
-                  <p className="text-gray-600">Qtd: {item.quantity}</p>
+                  <p className="text-gray-600">qtd: {item.quantity}</p>
                 </div>
                 <p>
                   {new Intl.NumberFormat('pt-BR', {
@@ -236,12 +274,12 @@ Aguardando contato para finalizar a compra.
           </div>
           <div className="space-y-2 py-4 border-b">
             <div className="flex justify-between text-sm">
-              <p>Subtotal</p>
+              <p>subtotal</p>
               <p>
                 {new Intl.NumberFormat('pt-BR', {
                   style: 'currency',
                   currency: 'BRL',
-                }).format(total)}
+                }).format(subtotal)}
               </p>
             </div>
             <div className="flex gap-2">
@@ -249,7 +287,7 @@ Aguardando contato para finalizar a compra.
                 type="text"
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
-                placeholder="Cupom de desconto"
+                placeholder="cupom de desconto"
                 className="w-full p-2 border rounded-md"
                 disabled={!!appliedCoupon}
               />
@@ -258,13 +296,16 @@ Aguardando contato para finalizar a compra.
                 disabled={!!appliedCoupon}
                 className="px-4 bg-gray-200 rounded-md text-sm font-bold hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
               >
-                Aplicar
+                aplicar
               </button>
             </div>
-            {/* Mensagens de feedback do cupom */}
             {couponMessage.text && (
               <div
-                className={`text-xs flex items-center gap-1 ${couponMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}
+                className={`text-xs flex items-center gap-1 ${
+                  couponMessage.type === 'success'
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                }`}
               >
                 {couponMessage.type === 'success' ? (
                   <CheckCircle size={14} />
@@ -274,10 +315,9 @@ Aguardando contato para finalizar a compra.
                 {couponMessage.text}
               </div>
             )}
-            {/* Exibição do desconto */}
             {appliedCoupon && (
               <div className="flex justify-between text-sm text-green-600">
-                <p>Desconto ({appliedCoupon.code})</p>
+                <p>desconto ({appliedCoupon.code})</p>
                 <p>
                   -
                   {new Intl.NumberFormat('pt-BR', {
@@ -289,7 +329,7 @@ Aguardando contato para finalizar a compra.
             )}
           </div>
           <div className="flex justify-between font-bold text-xl pt-4">
-            <p>Total</p>
+            <p>total</p>
             <p>
               {new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -301,7 +341,7 @@ Aguardando contato para finalizar a compra.
             onClick={handleSubmitOrder}
             className="w-full mt-6 bg-green-500 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-600"
           >
-            Enviar Pedido
+            enviar pedido
           </button>
         </div>
       </main>
