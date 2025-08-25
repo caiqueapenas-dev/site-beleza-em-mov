@@ -12,7 +12,7 @@ const StarRating = ({ rating }) => {
   return <div className="flex">{stars}</div>;
 };
 
-function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
+function ProductModal({ product, onClose, onAddToCart, relatedProducts, onProductClick }) {
   // --- ESTADOS DO MODAL ---
   const [selectedSize, setSelectedSize] = useState(null);
   const [customSize, setCustomSize] = useState('');
@@ -219,6 +219,33 @@ function ProductModal({ product, onClose, onAddToCart, onRequestSize }) {
               </h3>
               <p className="text-gray-700 text-base">{product.description}</p>
             </div>
+
+
+            {/* seção de produtos relacionados */}
+            {relatedProducts && relatedProducts.length > 0 && (
+              <div className="pt-4">
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  você também pode gostar
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {relatedProducts.map((related) => (
+                    <div
+                      key={related._id}
+                      onClick={() => onProductClick(related)}
+                      className="cursor-pointer group text-center"
+                    >
+                      <img
+                        src={related.image}
+                        alt={related.name}
+                        className="w-full h-auto object-cover rounded-md aspect-square group-hover:opacity-80 transition-opacity"
+                      />
+                      <p className="text-xs mt-2 truncate">{related.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Botão de Adicionar ao Carrinho (sempre no final) */}

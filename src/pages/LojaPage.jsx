@@ -213,6 +213,17 @@ function LojaPage() {
         (p.cores && p.cores.some((c) => c.nome === selectedColor)),
     );
 
+    // encontra produtos relacionados ao item selecionado no modal
+  const relatedProducts = selectedProduct
+    ? products
+        .filter(
+          (p) =>
+            p.categoria === selectedProduct.categoria &&
+            p._id !== selectedProduct._id,
+        )
+        .slice(0, 4) // pega os primeiros 4 itens
+    : [];
+
   const totalItemsInCart = cartItems.reduce(
     (sum, item) => sum + item.quantity,
     0,
@@ -287,6 +298,10 @@ function LojaPage() {
         onClose={handleCloseModal}
         onAddToCart={handleAddToCart}
         onRequestSize={handleRequestSize}
+        relatedProducts={relatedProducts}
+        onProductClick={handleProductClick} // passa a função para abrir outro produto
+
+
       />
 
       <Cart
