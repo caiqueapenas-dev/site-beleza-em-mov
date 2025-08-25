@@ -88,6 +88,56 @@ app.get('/api/produtos', async (req, res) => {
   }
 });
 
+// --- rotas para promoções/cupons ---
+
+// rota para buscar as configurações de promoção (incluindo cupons)
+app.get('/api/promotions', async (req, res) => {
+  try {
+    const database = await connectToDatabase();
+    const promotionsCollection = database.collection('promotions');
+    // busca o primeiro documento da coleção (vamos salvar tudo em um único documento)
+    let settings = await promotionsCollection.findOne({});
+
+    // se não existir, cria um padrão
+    if (!settings) {
+      settings = {
+        banner: {
+          isActive: false,
+          text: '',
+          textColor: '#ffffff',
+          backgroundColor: '#000000',
+        },
+        coupons: [],
+      };
+    }
+
+    res.status(200).json(settings);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'erro ao buscar promoções', error: error.message });
+  }
+});
+
+// rota para salvar/atualizar as configurações
+app.post('/api/promotions', async (req, res) => {
+  const newSettings = req.body;
+  try {
+    const database = await connectToDatabase();
+    const promotionsCollection = database.collection('promotions');
+
+    // usa "replaceOne" com "upsert: true" para substituir o documento existente ou criar um novo
+    await promotionsCollection.replaceOne({}, newSettings, { upsert: true });
+
+    res.status(200).json({ message: 'promoções salvas com sucesso' });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'erro ao salvar promoções', error: error.message });
+  }
+});
+
+
 // --- rota post (adicionar produto) ---
 app.post('/api/produtos', async (req, res) => {
   const newProduct = req.body;
