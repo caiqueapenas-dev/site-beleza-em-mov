@@ -20,12 +20,11 @@ function ProductForm({
     material: initialData.material || '',
     avaliacao: initialData.avaliacao || 0,
     description: initialData.description || '',
-    estoque: initialData.estoque || { P: 0, M: 0, G: 0, GG: 0 },
+    estoque: initialData.estoque || { p: 0, m: 0, g: 0, gg: 0 },
     palavras_chave: initialData.palavras_chave || '',
   });
 
   const [isUploading, setIsUploading] = useState(false);
-
   const [newSizeName, setNewSizeName] = useState('');
   const [newSizeQty, setNewSizeQty] = useState(0);
 
@@ -47,20 +46,21 @@ function ProductForm({
       },
     }));
   };
-const handleImageUpload = async (e) => {
+
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setIsUploading(true);
     const formDataApi = new FormData();
     formDataApi.append('file', file);
-    formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // ⚠️ substitua pelo nome do seu preset
+    formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // ⚠️ seu upload preset aqui
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // ⚠️ substitua pelo seu cloud name
+        `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // ⚠️ seu cloud name aqui
         {
-          method: 'POST',
+          method: 'post',
           body: formDataApi,
         },
       );
@@ -100,10 +100,10 @@ const handleImageUpload = async (e) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Nome e Categoria */}
+      {/* nome e categoria */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
-          label="Nome do Produto"
+          label="nome do produto"
           name="name"
           type="text"
           value={formData.name}
@@ -113,7 +113,7 @@ const handleImageUpload = async (e) => {
           suggestions={allNames}
         />
         <FormField
-          label="Categoria"
+          label="categoria"
           name="categoria"
           type="text"
           value={formData.categoria}
@@ -124,32 +124,10 @@ const handleImageUpload = async (e) => {
         />
       </div>
 
-      {/* upload de imagem e url */}
-     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-       <div>
-         <label className="block text-sm font-medium">upload da imagem</label>
-         <input
-           type="file"
-           onChange={handleImageUpload}
-           className="w-full mt-1 p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
-         />
-       </div>
-       <FormField
-         label="ou cole a url da imagem"
-         name="image"
-         type="text"
-         value={formData.image}
-         onChange={handleChange}
-         required
-         disabled={isUploading}
-         placeholder={isUploading ? 'enviando...' : 'url da imagem'}
-       />
-     </div>
-
-      {/* Preço e Avaliação */}
+      {/* preço e avaliação */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium">Preço (R$)</label>
+          <label className="block text-sm font-medium">preço (r$)</label>
           <CustomCurrencyInput
             valueInCents={formData.price}
             onValueChange={(newCents) => {
@@ -158,7 +136,7 @@ const handleImageUpload = async (e) => {
           />
         </div>
         <FormField
-          label="Avaliação (0 a 5)"
+          label="avaliação (0 a 5)"
           name="avaliacao"
           type="number"
           value={formData.avaliacao}
@@ -170,30 +148,50 @@ const handleImageUpload = async (e) => {
       </div>
 
       <FormField
-        label="Desconto do Produto (%)"
+        label="desconto do produto (%)"
         name="desconto_percentual"
         type="number"
         value={formData.desconto_percentual}
         onChange={handleChange}
         min="1"
         max="100"
-        placeholder="Ex: 15 para 15% de desconto"
+        placeholder="ex: 15 para 15% de desconto"
       />
 
-      
+      {/* upload de imagem e url */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+        <div>
+          <label className="block text-sm font-medium">upload da imagem</label>
+          <input
+            type="file"
+            onChange={handleImageUpload}
+            className="w-full mt-1 p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
+          />
+        </div>
+        <FormField
+          label="ou cole a url da imagem"
+          name="image"
+          type="text"
+          value={formData.image}
+          onChange={handleChange}
+          required
+          disabled={isUploading}
+          placeholder={isUploading ? 'enviando...' : 'url da imagem'}
+        />
+      </div>
 
       <FormField
-        label="Descrição do Produto"
+        label="descrição do produto"
         name="description"
-        as="textarea" // Usaremos um FormField modificado
+        as="textarea"
         value={formData.description}
         onChange={handleChange}
-        rows="4" // Define a altura do campo
+        rows="4"
       />
 
-      {/* Material */}
+      {/* material */}
       <FormField
-        label="Material"
+        label="material"
         name="material"
         type="text"
         value={formData.material}
@@ -202,9 +200,9 @@ const handleImageUpload = async (e) => {
         suggestions={allMaterials}
       />
 
-      {/* Palavras-chave */}
+      {/* palavras-chave */}
       <FormField
-        label="Palavras-chave (separadas por vírgula)"
+        label="palavras-chave (separadas por vírgula)"
         name="palavras_chave"
         type="text"
         value={formData.palavras_chave}
@@ -213,9 +211,9 @@ const handleImageUpload = async (e) => {
         suggestions={allKeywords}
       />
 
-      {/* Estoque */}
+      {/* estoque */}
       <div>
-        <label className="block text-sm font-medium">Estoque</label>
+        <label className="block text-sm font-medium">estoque</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-1">
           {Object.keys(formData.estoque).map((size) => (
             <div key={size}>
@@ -234,24 +232,23 @@ const handleImageUpload = async (e) => {
         </div>
       </div>
 
-      {/* 🔥 ADICIONE TODO ESTE BLOCO */}
       <div className="mt-4 space-y-2">
         <label className="block text-sm font-medium">
-          Adicionar Tamanho Personalizado
+          adicionar tamanho personalizado
         </label>
         <div className="flex gap-2">
           <input
             type="text"
             value={newSizeName}
             onChange={(e) => setNewSizeName(e.target.value)}
-            placeholder="Ex: XG, 38"
+            placeholder="ex: xg, 38"
             className="w-full p-2 border rounded-md"
           />
           <input
             type="number"
             value={newSizeQty}
             onChange={(e) => setNewSizeQty(parseInt(e.target.value, 10))}
-            placeholder="Qtd"
+            placeholder="qtd"
             className="w-24 p-2 border rounded-md"
           />
           <button
@@ -259,32 +256,32 @@ const handleImageUpload = async (e) => {
             onClick={handleAddCustomSize}
             className="px-3 py-2 bg-green-600 text-white rounded-md"
           >
-            Adicionar
+            adicionar
           </button>
         </div>
       </div>
 
-      {/* Botões */}
+      {/* botões */}
       <div className="flex justify-end pt-4 gap-2">
         <button
           type="button"
           onClick={onCancel}
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
         >
-          Cancelar
+          cancelar
         </button>
         <button
           type="submit"
           className="px-4 py-2 bg-cyan-600 text-white rounded-md"
         >
-          Salvar Produto
+          salvar produto
         </button>
       </div>
     </form>
   );
 }
 
-// 🔥 Componente reutilizável para campos de formulário
+// componente reutilizável para campos de formulário
 function FormField({ label, name, as = 'input', ...rest }) {
   const Component = as; // 'as' pode ser 'input' ou 'textarea'
   return (
