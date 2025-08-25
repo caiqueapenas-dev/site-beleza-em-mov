@@ -10,7 +10,7 @@ import Notification from '../components/Notification';
 import PromotionSettings from '../components/PromotionSettings';
 import ProductsTable from '../components/ProductsTable';
 import RequestsTable from '../components/RequestsTable';
-import OrdersDashboard from '../components/OrdersDashboard'; // import do novo componente
+import OrdersDashboard from '../components/OrdersDashboard';
 
 function AdminDashboardPage() {
   // --- estados do componente ---
@@ -45,7 +45,7 @@ function AdminDashboardPage() {
       try {
         const response = await fetch('/api/produtos');
         if (!response.ok) {
-          throw new error('falha ao carregar os produtos da api.');
+          throw new Error('falha ao carregar os produtos da api.'); // corrigido
         }
         const data = await response.json();
         setProducts(data.products);
@@ -117,7 +117,9 @@ function AdminDashboardPage() {
       });
 
       if (!response.ok) {
-        throw new error(`falha ao ${method === 'put' ? 'editar' : 'adicionar'} produto`);
+        throw new Error( // corrigido
+          `falha ao ${method === 'put' ? 'editar' : 'adicionar'} produto`,
+        );
       }
 
       const savedProduct = await response.json();
@@ -133,7 +135,10 @@ function AdminDashboardPage() {
       setIsModalOpen(false);
     } catch (error) {
       console.error(`falha ao salvar produto:`, error);
-      showNotification(`erro ao ${method === 'put' ? 'editar' : 'adicionar'} produto.`, 'error');
+      showNotification(
+        `erro ao ${method === 'put' ? 'editar' : 'adicionar'} produto.`,
+        'error',
+      );
     }
   };
 
@@ -152,7 +157,7 @@ function AdminDashboardPage() {
       });
 
       if (!response.ok) {
-        throw new error('falha ao deletar o produto');
+        throw new Error('falha ao deletar o produto'); // corrigido
       }
 
       setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
@@ -210,7 +215,9 @@ function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <span className="text-gray-600">bem-vindo, {user?.name || 'admin'}!</span>
+          <span className="text-gray-600">
+            bem-vindo, {user?.name || 'admin'}!
+          </span>
           <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
