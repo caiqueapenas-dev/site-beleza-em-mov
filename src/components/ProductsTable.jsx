@@ -96,10 +96,7 @@ function ProductsTable({
                   >
                     Editar
                   </button>
-                  <button
-                    onClick={() => onDelete(product.id)}
-                    className="text-red-600 hover:underline"
-                  >
+                  <button onClick={() => onDelete(product._id)} className="text-red-600 hover:underline">
                     Remover
                   </button>
                 </td>
