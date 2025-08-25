@@ -23,6 +23,35 @@ async function connectToDatabase() {
 
 app.use(express.json());
 
+ app.post('/api/login', async (req, res) => {
+   const { email, password } = req.body;
+ 
+   if (!email || !password) {
+     return res.status(400).json({ message: 'email e senha são obrigatórios.' });
+   }
+ 
+   try {
+     const database = await connectToDatabase();
+     const usersCollection = database.collection('users'); // nova coleção de usuários
+ 
+     // encontre um usuário com o email e senha fornecidos
+     const user = await usersCollection.findOne({ email: email, password: password });
+ 
+     if (user) {
+       // login bem-sucedido
+       res.status(200).json({ success: true, user: { email: user.email, name: user.name } });
+     } else {
+       // credenciais inválidas
+       res.status(401).json({ success: false, message: 'email ou senha inválidos.' });
+     }
+   } catch (error) {
+     res.status(500).json({
+       message: 'erro no servidor ao tentar fazer login',
+       error: error.message,
+     });
+   }
+ });
+
 // --- ROTA GET (LER PRODUTOS) ---
 app.get('/api/produtos', async (req, res) => {
   try {
