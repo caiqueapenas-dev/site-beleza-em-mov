@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 // Componentes Principais
 import Header from '../components/Header';
@@ -43,6 +44,14 @@ const faqData = [
 function HomePage() {
   return (
     <>
+
+      <Helmet>
+        <title>beleza em movimento - roupas fitness com tecnologia e estilo</title>
+        <meta
+          name="description"
+          content="encontre roupas fitness de alta performance. tecnologia, conforto e estilo para seus treinos. tops, leggings, shorts e mais."
+        />
+      </Helmet>
       <Header />
 
       <div className="relative hero-bg text-white">

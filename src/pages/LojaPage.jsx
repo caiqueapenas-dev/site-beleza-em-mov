@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../components/Notification';
+import { Helmet } from 'react-helmet-async';
 
 // Componentes
 import LojaHeader from '../components/LojaHeader';
@@ -218,6 +219,13 @@ function LojaPage() {
   // --- RENDERIZAÇÃO ---
   return (
     <>
+          <Helmet>
+        <title>nossa coleção - beleza em movimento</title>
+        <meta
+          name="description"
+          content="explore nossa coleção completa de roupas fitness. encontre o look perfeito para cada tipo de treino."
+        />
+      </Helmet>
       <LojaHeader
         searchTerm={searchTerm}
         onSearchChange={(e) => setSearchTerm(e.target.value)}
