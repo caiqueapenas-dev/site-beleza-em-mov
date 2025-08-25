@@ -1,6 +1,6 @@
 // api/index.cjs
 const express = require('express');
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const app = express();
 
 const uri = process.env.MONGODB_URI;
@@ -14,7 +14,16 @@ async function connectToDatabase() {
   if (!uri) {
     throw new Error('string de conexão não configurada.');
   }
-  const client = new MongoClient(uri);
+
+  // usa a nova estrutura de cliente recomendada pelo mongodb
+  const client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+
   await client.connect();
   const db = client.db('belezaEmMovDB');
   cachedDb = db; // armazena a conexão no cache
@@ -89,16 +98,12 @@ app.get('/api/produtos', async (req, res) => {
 });
 
 // --- rotas para promoções/cupons ---
-
-// rota para buscar as configurações de promoção (incluindo cupons)
 app.get('/api/promotions', async (req, res) => {
   try {
     const database = await connectToDatabase();
     const promotionsCollection = database.collection('promotions');
-    // busca o primeiro documento da coleção (vamos salvar tudo em um único documento)
     let settings = await promotionsCollection.findOne({});
 
-    // se não existir, cria um padrão
     if (!settings) {
       settings = {
         banner: {
@@ -119,16 +124,12 @@ app.get('/api/promotions', async (req, res) => {
   }
 });
 
-// rota para salvar/atualizar as configurações
 app.post('/api/promotions', async (req, res) => {
   const newSettings = req.body;
   try {
     const database = await connectToDatabase();
     const promotionsCollection = database.collection('promotions');
-
-    // usa "replaceOne" com "upsert: true" para substituir o documento existente ou criar um novo
     await promotionsCollection.replaceOne({}, newSettings, { upsert: true });
-
     res.status(200).json({ message: 'promoções salvas com sucesso' });
   } catch (error) {
     res
@@ -136,7 +137,6 @@ app.post('/api/promotions', async (req, res) => {
       .json({ message: 'erro ao salvar promoções', error: error.message });
   }
 });
-
 
 // --- rota post (adicionar produto) ---
 app.post('/api/produtos', async (req, res) => {

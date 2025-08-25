@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react';
 import CustomCurrencyInput from './CustomCurrencyInput';
 
 function OrdersDashboard({ allProducts }) {
+  // Estado para os pedidos, carregando do localStorage
   const [orders, setOrders] = useState(() => {
     const savedOrders = localStorage.getItem('manualOrders');
     return savedOrders ? JSON.parse(savedOrders) : [];
@@ -15,30 +16,33 @@ function OrdersDashboard({ allProducts }) {
     items: [{ productId: '', size: '', quantity: 1 }],
     total: 0,
     status: 'pago',
-    date: new Date().toISOString().split('t')[0],
+    date: new Date().toISOString().split('T')[0],
   });
 
+  // Salva os pedidos no localStorage sempre que eles mudam
   useEffect(() => {
     localStorage.setItem('manualOrders', JSON.stringify(orders));
   }, [orders]);
 
+  // Manipula mudanças nos inputs do formulário principal
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewOrder((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Manipula mudanças nos itens do pedido (produto, tamanho, quantidade)
   const handleItemChange = (index, e) => {
     const { name, value } = e.target;
     const items = [...newOrder.items];
     items[index][name] = value;
 
-    // se o produto mudar, reseta o tamanho
     if (name === 'productId') {
-      items[index].size = '';
+      items[index].size = ''; // Reseta o tamanho se o produto mudar
     }
     setNewOrder((prev) => ({ ...prev, items }));
   };
 
+  // Adiciona um novo campo de item ao pedido
   const handleAddItem = () => {
     setNewOrder((prev) => ({
       ...prev,
@@ -46,24 +50,23 @@ function OrdersDashboard({ allProducts }) {
     }));
   };
 
+  // Remove um item do pedido
   const handleRemoveItem = (index) => {
     const items = newOrder.items.filter((_, i) => i !== index);
     setNewOrder((prev) => ({ ...prev, items }));
   };
 
-  const calculateTotal = () => {
-    return newOrder.items.reduce((sum, item) => {
+  // Calcula o valor total do pedido com base nos itens
+  useEffect(() => {
+    const total = newOrder.items.reduce((sum, item) => {
       const product = allProducts.find((p) => p._id === item.productId);
       if (!product) return sum;
       return sum + product.price * item.quantity;
     }, 0);
-  };
-
-  useEffect(() => {
-    const totalInCents = calculateTotal() * 100;
-    setNewOrder((prev) => ({ ...prev, total: totalInCents }));
+    setNewOrder((prev) => ({ ...prev, total: total * 100 }));
   }, [newOrder.items, allProducts]);
 
+  // Reseta o formulário para o estado inicial
   const resetForm = () => {
     setIsFormVisible(false);
     setNewOrder({
@@ -72,10 +75,11 @@ function OrdersDashboard({ allProducts }) {
       items: [{ productId: '', size: '', quantity: 1 }],
       total: 0,
       status: 'pago',
-      date: new Date().toISOString().split('t')[0],
+      date: new Date().toISOString().split('T')[0],
     });
   };
 
+  // Salva o novo pedido
   const handleSubmit = (e) => {
     e.preventDefault();
     setOrders((prev) => [...prev, { ...newOrder, id: Date.now() }]);
@@ -85,13 +89,13 @@ function OrdersDashboard({ allProducts }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">pedidos registrados</h2>
+        <h2 className="text-2xl font-semibold">Pedidos Registrados</h2>
         {!isFormVisible && (
           <button
             onClick={() => setIsFormVisible(true)}
             className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg"
           >
-            registrar novo pedido
+            Registrar Novo Pedido
           </button>
         )}
       </div>
@@ -99,15 +103,15 @@ function OrdersDashboard({ allProducts }) {
       {isFormVisible && (
         <form
           onSubmit={handleSubmit}
-          className="mb-6 p-4 bg-gray-50 rounded-lg border space-y-4"
+          className="mb-6 p-4 bg-gray-50 rounded-lg border space-y-4 animate-fade-in"
         >
-          <h3 className="text-lg font-semibold">novo registro de venda</h3>
+          <h3 className="text-lg font-semibold">Novo Registro de Venda</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               name="customerName"
               value={newOrder.customerName}
               onChange={handleInputChange}
-              placeholder="nome do cliente"
+              placeholder="Nome do Cliente"
               className="w-full p-2 border rounded-md"
               required
             />
@@ -125,14 +129,14 @@ function OrdersDashboard({ allProducts }) {
               onChange={handleInputChange}
               className="w-full p-2 border rounded-md bg-white"
             >
-              <option value="pago">pago</option>
-              <option value="pendente">pendente</option>
-              <option value="cancelado">cancelado</option>
+              <option value="pago">Pago</option>
+              <option value="pendente">Pendente</option>
+              <option value="cancelado">Cancelado</option>
             </select>
           </div>
 
           <div className="space-y-2">
-            <label className="font-medium">itens do pedido</label>
+            <label className="font-medium">Itens do Pedido</label>
             {newOrder.items.map((item, index) => {
               const selectedProduct = allProducts.find(
                 (p) => p._id === item.productId,
@@ -145,7 +149,7 @@ function OrdersDashboard({ allProducts }) {
                     onChange={(e) => handleItemChange(index, e)}
                     className="w-full p-2 border rounded-md bg-white flex-grow"
                   >
-                    <option value="">selecione um produto</option>
+                    <option value="">Selecione um produto</option>
                     {allProducts.map((p) => (
                       <option key={p._id} value={p._id}>
                         {p.name}
@@ -159,7 +163,7 @@ function OrdersDashboard({ allProducts }) {
                     className="w-24 p-2 border rounded-md bg-white"
                     disabled={!selectedProduct}
                   >
-                    <option value="">tamanho</option>
+                    <option value="">Tamanho</option>
                     {selectedProduct &&
                       Object.keys(selectedProduct.estoque).map((s) => (
                         <option key={s} value={s}>
@@ -190,12 +194,12 @@ function OrdersDashboard({ allProducts }) {
               onClick={handleAddItem}
               className="text-sm text-cyan-600 font-semibold hover:underline"
             >
-              + adicionar item
+              + Adicionar Item
             </button>
           </div>
 
           <div>
-            <label className="block text-sm font-medium">valor total (r$)</label>
+            <label className="block text-sm font-medium">Valor Total (R$)</label>
             <CustomCurrencyInput
               valueInCents={newOrder.total}
               onValueChange={(cents) =>
@@ -210,13 +214,13 @@ function OrdersDashboard({ allProducts }) {
               onClick={resetForm}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
             >
-              cancelar
+              Cancelar
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-green-600 text-white rounded-md"
             >
-              salvar pedido
+              Salvar Pedido
             </button>
           </div>
         </form>
@@ -225,25 +229,25 @@ function OrdersDashboard({ allProducts }) {
       <div className="overflow-x-auto">
         {orders.length === 0 ? (
           <p className="text-gray-500 text-center py-4">
-            nenhum pedido registrado ainda.
+            Nenhum pedido registrado ainda.
           </p>
         ) : (
           <table className="w-full text-left">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-3 font-semibold">data</th>
-                <th className="p-3 font-semibold">cliente</th>
-                <th className="p-3 font-semibold">itens</th>
-                <th className="p-3 font-semibold">total</th>
-                <th className="p-3 font-semibold">status</th>
+                <th className="p-3 font-semibold">Data</th>
+                <th className="p-3 font-semibold">Cliente</th>
+                <th className="p-3 font-semibold">Itens</th>
+                <th className="p-3 font-semibold">Total</th>
+                <th className="p-3 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id} className="border-b">
                   <td className="p-3">
-                    {new Date(order.date).toLocaleDateString('pt-br', {
-                      timeZone: 'utc',
+                    {new Date(order.date).toLocaleDateString('pt-BR', {
+                      timeZone: 'UTC',
                     })}
                   </td>
                   <td className="p-3">{order.customerName}</td>
@@ -254,20 +258,20 @@ function OrdersDashboard({ allProducts }) {
                           (p) => p._id === item.productId,
                         );
                         return `${item.quantity}x ${
-                          product?.name || 'produto removido'
+                          product?.name || 'Produto Removido'
                         } (${item.size.toUpperCase()})`;
                       })
                       .join(', ')}
                   </td>
                   <td className="p-3 font-medium">
-                    {new Intl.NumberFormat('pt-br', {
+                    {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
-                      currency: 'brl',
+                      currency: 'BRL',
                     }).format(order.total / 100)}
                   </td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
                         order.status === 'pago'
                           ? 'bg-green-100 text-green-800'
                           : order.status === 'pendente'

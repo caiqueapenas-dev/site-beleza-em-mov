@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-// componentes
+// Componentes
 import AdminModal from '../components/AdminModal';
 import ProductForm from '../components/ProductForm';
 import Notification from '../components/Notification';
 import PromotionSettings from '../components/PromotionSettings';
 import ProductsTable from '../components/ProductsTable';
 import RequestsTable from '../components/RequestsTable';
-import OrdersDashboard from '../components/OrdersDashboard';
+import OrdersDashboard from '../components/OrdersDashboard'; // Import do novo componente
 
 function AdminDashboardPage() {
-  // --- estados do componente ---
+  // --- ESTADOS DO COMPONENTE ---
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -23,8 +23,8 @@ function AdminDashboardPage() {
     banner: {
       isActive: false,
       text: '',
-      textColor: '#ffffff',
-      backgroundColor: '#06b6d4',
+      textColor: '#FFFFFF',
+      backgroundColor: '#06B6D4',
     },
     coupons: [],
   });
@@ -38,20 +38,20 @@ function AdminDashboardPage() {
   const [adminSearchTerm, setAdminSearchTerm] = useState('');
   const [adminCategory, setAdminCategory] = useState('todos');
 
-  // --- efeitos de carregamento e salvamento ---
+  // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch('/api/produtos');
         if (!response.ok) {
-          throw new Error('falha ao carregar os produtos da api.'); // corrigido
+          throw new Error('Falha ao carregar os produtos da API.');
         }
         const data = await response.json();
         setProducts(data.products);
       } catch (error) {
-        console.error('falha ao buscar produtos da api:', error);
-        showNotification('erro ao carregar produtos.', 'error');
+        console.error('Falha ao buscar produtos da API:', error);
+        showNotification('Erro ao carregar produtos.', 'error');
       }
     };
     fetchProducts();
@@ -65,14 +65,14 @@ function AdminDashboardPage() {
         const data = await response.json();
         setPromoSettings(data);
       } catch (error) {
-        console.error('falha ao buscar promoções:', error);
-        showNotification('erro ao carregar promoções.', 'error');
+        console.error('Falha ao buscar promoções:', error);
+        showNotification('Erro ao carregar promoções.', 'error');
       }
     };
     fetchPromotions();
   }, []);
 
-  // --- funções de lógica ---
+  // --- FUNÇÕES DE LÓGICA ---
 
   const handleLogout = () => navigate('/admin');
 
@@ -90,7 +90,7 @@ function AdminDashboardPage() {
     );
     setRequests(updatedRequests);
     localStorage.setItem('productRequests', JSON.stringify(updatedRequests));
-    showNotification('solicitação marcada como vista!');
+    showNotification('Solicitação marcada como vista!');
   };
 
   const handleOpenAddModal = () => {
@@ -104,7 +104,7 @@ function AdminDashboardPage() {
   };
 
   const handleSaveProduct = async (formData) => {
-    const method = editingProduct ? 'put' : 'post';
+    const method = editingProduct ? 'PUT' : 'POST';
     const url = editingProduct
       ? `/api/produtos/${editingProduct._id}`
       : '/api/produtos';
@@ -112,14 +112,12 @@ function AdminDashboardPage() {
     try {
       const response = await fetch(url, {
         method: method,
-        headers: { 'content-type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error( // corrigido
-          `falha ao ${method === 'put' ? 'editar' : 'adicionar'} produto`,
-        );
+        throw new Error(`Falha ao ${method === 'PUT' ? 'editar' : 'adicionar'} produto`);
       }
 
       const savedProduct = await response.json();
@@ -127,25 +125,22 @@ function AdminDashboardPage() {
         setProducts((prev) =>
           prev.map((p) => (p._id === editingProduct._id ? savedProduct : p)),
         );
-        showNotification('produto editado com sucesso!');
+        showNotification('Produto editado com sucesso!');
       } else {
         setProducts((prev) => [...prev, savedProduct]);
-        showNotification('produto adicionado com sucesso!');
+        showNotification('Produto adicionado com sucesso!');
       }
       setIsModalOpen(false);
     } catch (error) {
-      console.error(`falha ao salvar produto:`, error);
-      showNotification(
-        `erro ao ${method === 'put' ? 'editar' : 'adicionar'} produto.`,
-        'error',
-      );
+      console.error(`Falha ao salvar produto:`, error);
+      showNotification(`Erro ao ${method === 'PUT' ? 'editar' : 'adicionar'} produto.`, 'error');
     }
   };
 
   const handleDeleteProduct = async (productIdToDelete) => {
     if (
       !window.confirm(
-        'tem certeza que deseja remover este produto? a ação não pode ser desfeita.',
+        'Tem certeza que deseja remover este produto? A ação não pode ser desfeita.',
       )
     ) {
       return;
@@ -153,37 +148,37 @@ function AdminDashboardPage() {
 
     try {
       const response = await fetch(`/api/produtos/${productIdToDelete}`, {
-        method: 'delete',
+        method: 'DELETE',
       });
 
       if (!response.ok) {
-        throw new Error('falha ao deletar o produto'); // corrigido
+        throw new Error('Falha ao deletar o produto');
       }
 
       setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
-      showNotification('produto removido com sucesso!');
+      showNotification('Produto removido com sucesso!');
     } catch (error) {
-      console.error('erro ao deletar produto:', error);
-      showNotification('erro ao remover produto.', 'error');
+      console.error('Erro ao deletar produto:', error);
+      showNotification('Erro ao remover produto.', 'error');
     }
   };
 
   const handleSavePromotions = async (newSettings) => {
     try {
       await fetch('/api/promotions', {
-        method: 'post',
-        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSettings),
       });
       setPromoSettings(newSettings);
-      showNotification('promoções salvas com sucesso!');
+      showNotification('Promoções salvas com sucesso!');
     } catch (error) {
-      console.error('falha ao salvar promoções:', error);
-      showNotification('erro ao salvar promoções.', 'error');
+      console.error('Falha ao salvar promoções:', error);
+      showNotification('Erro ao salvar promoções.', 'error');
     }
   };
 
-  // --- preparação de dados ---
+  // --- PREPARAÇÃO DE DADOS ---
   const allNames = [...new Set(products.map((p) => p.name))];
   const allMaterials = [
     ...new Set(products.map((p) => p.material).filter(Boolean)),
@@ -202,27 +197,25 @@ function AdminDashboardPage() {
   ];
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
-  // --- renderização ---
+  // --- RENDERIZAÇÃO ---
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
-            painel de controle
+            Painel de Controle
           </h1>
           <p className="text-gray-500">
-            gerencie seus produtos, promoções e estoques.
+            Gerencie seus produtos, promoções e estoques.
           </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <span className="text-gray-600">
-            bem-vindo, {user?.name || 'admin'}!
-          </span>
+          <span className="text-gray-600">Bem-vindo, {user?.name || 'Admin'}!</span>
           <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
           >
-            sair
+            Sair
           </button>
         </div>
       </header>
@@ -237,7 +230,7 @@ function AdminDashboardPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            produtos
+            Produtos
           </button>
           <button
             onClick={() => setActiveTab('promotions')}
@@ -247,7 +240,7 @@ function AdminDashboardPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            promoções
+            Promoções
           </button>
           <button
             onClick={() => setActiveTab('requests')}
@@ -257,7 +250,7 @@ function AdminDashboardPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            solicitações
+            Solicitações
             {unseenRequestsCount > 0 && (
               <span className="absolute top-3 -right-3 ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                 {unseenRequestsCount}
@@ -272,7 +265,7 @@ function AdminDashboardPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            pedidos
+            Pedidos
           </button>
         </nav>
       </div>
@@ -321,7 +314,7 @@ function AdminDashboardPage() {
       <AdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingProduct ? 'editar produto' : 'adicionar novo produto'}
+        title={editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}
       >
         <ProductForm
           onSubmit={handleSaveProduct}
