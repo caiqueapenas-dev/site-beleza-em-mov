@@ -1,5 +1,6 @@
 // src/components/ProductForm.jsx
 import React, { useState } from 'react';
+import { Trash2, X } from 'lucide-react';
 import CustomCurrencyInput from './CustomCurrencyInput';
 
 function ProductForm({
@@ -16,7 +17,7 @@ function ProductForm({
     categoria: initialData.categoria || 'top',
     price: (initialData.price || 0) * 100,
     desconto_percentual: initialData.desconto_percentual || 0,
-    image: initialData.image || '',
+    images: initialData.images || [], // alterado de image para images
     material: initialData.material || '',
     avaliacao: initialData.avaliacao || 0,
     description: initialData.description || '',
@@ -48,30 +49,45 @@ function ProductForm({
   };
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files.length) return;
 
     setIsUploading(true);
-    const formDataApi = new FormData();
-    formDataApi.append('file', file);
-    formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // seu upload preset
+    const uploadedUrls = [];
+    
+    for (const file of files) {
+      const formDataApi = new FormData();
+      formDataApi.append('file', file);
+      formDataApi.append('upload_preset', 'beleza-em-mov-unsigned'); // seu upload preset
 
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // seu cloud name
-        {
-          method: 'post',
-          body: formDataApi,
-        },
-      );
-      const data = await response.json();
-      setFormData((prev) => ({ ...prev, image: data.secure_url }));
-    } catch (error) {
-      console.error('erro ao enviar imagem:', error);
-    } finally {
-      setIsUploading(false);
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/dnescubo4/image/upload`, // seu cloud name
+          {
+            method: 'post',
+            body: formDataApi,
+          },
+        );
+        const data = await response.json();
+        uploadedUrls.push(data.secure_url);
+      } catch (error) {
+        console.error('erro ao enviar imagem:', error);
+      }
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...uploadedUrls],
+    }));
+    setIsUploading(false);
   };
+  
+  const handleRemoveImage = (urlToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter(url => url !== urlToRemove)
+    }))
+  }
 
   const handleAddCustomSize = () => {
     const sizeKey = newSizeName.trim().toUpperCase();
@@ -109,8 +125,6 @@ function ProductForm({
           value={formData.name}
           onChange={handleChange}
           required
-          list="product-names"
-          suggestions={allNames}
         />
         <FormField
           label="categoria"
@@ -119,8 +133,6 @@ function ProductForm({
           value={formData.categoria}
           onChange={handleChange}
           required
-          list="product-categories"
-          suggestions={allCategories}
         />
       </div>
 
@@ -130,9 +142,9 @@ function ProductForm({
           <label className="block text-sm font-medium">preço (r$)</label>
           <CustomCurrencyInput
             valueInCents={formData.price}
-            onValueChange={(newCents) => {
-              setFormData((prev) => ({ ...prev, price: newCents }));
-            }}
+            onValueChange={(cents) =>
+              setFormData((prev) => ({ ...prev, price: cents }))
+            }
           />
         </div>
         <FormField
@@ -155,37 +167,40 @@ function ProductForm({
         onChange={handleChange}
         min="0"
         max="100"
-        placeholder="ex: 15 para 15% de desconto"
       />
 
-      {/* --- NOVO CAMPO DE UPLOAD DE IMAGEM --- */}
+      {/* upload de imagens */}
       <div>
-        <label className="block text-sm font-medium">imagem do produto</label>
-        <div className="mt-1 flex items-center gap-4">
-          {formData.image && (
-            <img
-              src={formData.image}
-              alt="pré-visualização"
-              className="w-20 h-20 rounded-md object-cover"
-            />
-          )}
-          <label className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
-            <span>{isUploading ? 'enviando...' : 'escolher arquivo'}</span>
+        <label className="block text-sm font-medium">imagens do produto</label>
+        <div className="mt-1 flex flex-wrap gap-4 items-center">
+          {formData.images.map((url) => (
+            <div key={url} className="relative">
+              <img
+                src={url}
+                alt="pré-visualização"
+                className="w-20 h-20 rounded-md object-cover"
+              />
+              <button 
+                type="button" 
+                onClick={() => handleRemoveImage(url)}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"
+              >
+                <X size={14}/>
+              </button>
+            </div>
+          ))}
+          <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed rounded-md cursor-pointer hover:bg-gray-50">
+            <span className="text-gray-500">{isUploading ? '...' : '+'}</span>
             <input
               type="file"
               onChange={handleImageUpload}
               className="sr-only"
+              multiple // permite selecionar múltiplos arquivos
               disabled={isUploading}
             />
           </label>
-          {!formData.image && !isUploading && (
-            <span className="text-sm text-gray-500">
-              nenhuma imagem selecionada.
-            </span>
-          )}
         </div>
       </div>
-      {/* --- FIM DO NOVO CAMPO --- */}
 
       <FormField
         label="descrição do produto"
@@ -196,27 +211,22 @@ function ProductForm({
         rows="4"
       />
 
-      {/* material */}
-      <FormField
-        label="material"
-        name="material"
-        type="text"
-        value={formData.material}
-        onChange={handleChange}
-        list="product-materials"
-        suggestions={allMaterials}
-      />
-
-      {/* palavras-chave */}
-      <FormField
-        label="palavras-chave (separadas por vírgula)"
-        name="palavras_chave"
-        type="text"
-        value={formData.palavras_chave}
-        onChange={handleChange}
-        list="product-keywords"
-        suggestions={allKeywords}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          label="material"
+          name="material"
+          type="text"
+          value={formData.material}
+          onChange={handleChange}
+        />
+        <FormField
+          label="palavras-chave (separadas por vírgula)"
+          name="palavras_chave"
+          type="text"
+          value={formData.palavras_chave}
+          onChange={handleChange}
+        />
+      </div>
 
       {/* estoque */}
       <div>
@@ -236,37 +246,6 @@ function ProductForm({
               />
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="mt-4 space-y-2">
-        <label className="block text-sm font-medium">
-          adicionar tamanho personalizado
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newSizeName}
-            onChange={(e) => setNewSizeName(e.target.value)}
-            placeholder="ex: xg, 38"
-            className="w-full p-2 border rounded-md"
-          />
-          <input
-            type="number"
-            value={newSizeQty}
-            onChange={(e) =>
-              setNewSizeQty(parseInt(e.target.value, 10) || 0)
-            }
-            placeholder="qtd"
-            className="w-24 p-2 border rounded-md"
-          />
-          <button
-            type="button"
-            onClick={handleAddCustomSize}
-            className="px-3 py-2 bg-green-600 text-white rounded-md"
-          >
-            adicionar
-          </button>
         </div>
       </div>
 
@@ -290,7 +269,6 @@ function ProductForm({
   );
 }
 
-// componente reutilizável para campos de formulário
 function FormField({ label, name, as = 'input', ...rest }) {
   const Component = as;
   return (
