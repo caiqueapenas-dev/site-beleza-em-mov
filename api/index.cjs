@@ -6,68 +6,89 @@ const app = express();
 const uri = process.env.MONGODB_URI;
 let cachedDb = null;
 
-// Função para conectar e "cachear" a conexão
+// função para conectar e "cachear" a conexão
 async function connectToDatabase() {
   if (cachedDb) {
     return cachedDb;
   }
   if (!uri) {
-    throw new Error('String de conexão não configurada.');
+    throw new Error('string de conexão não configurada.');
   }
   const client = new MongoClient(uri);
   await client.connect();
   const db = client.db('belezaEmMovDB');
-  cachedDb = db; // Armazena a conexão no cache
+  cachedDb = db; // armazena a conexão no cache
   return db;
 }
 
 app.use(express.json());
 
- app.post('/api/login', async (req, res) => {
-   const { email, password } = req.body;
- 
-   if (!email || !password) {
-     return res.status(400).json({ message: 'email e senha são obrigatórios.' });
-   }
- 
-   try {
-     const database = await connectToDatabase();
-     const usersCollection = database.collection('users'); // nova coleção de usuários
- 
-     // encontre um usuário com o email e senha fornecidos
-     const user = await usersCollection.findOne({ email: email, password: password });
- 
-     if (user) {
-       // login bem-sucedido
-       res.status(200).json({ success: true, user: { email: user.email, name: user.name } });
-     } else {
-       // credenciais inválidas
-       res.status(401).json({ success: false, message: 'email ou senha inválidos.' });
-     }
-   } catch (error) {
-     res.status(500).json({
-       message: 'erro no servidor ao tentar fazer login',
-       error: error.message,
-     });
-   }
- });
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
 
-// --- ROTA GET (LER PRODUTOS) ---
-app.get('/api/produtos', async (req, res) => {
+  if (!email || !password) {
+    return res.status(400).json({ message: 'email e senha são obrigatórios.' });
+  }
+
   try {
     const database = await connectToDatabase();
-    const productsCollection = database.collection('produtos');
-    const products = await productsCollection.find({}).toArray();
-    res.status(200).json(products);
+    const usersCollection = database.collection('users');
+
+    const user = await usersCollection.findOne({ email: email, password: password });
+
+    if (user) {
+      res.status(200).json({ success: true, user: { email: user.email, name: user.name } });
+    } else {
+      res.status(401).json({ success: false, message: 'email ou senha inválidos.' });
+    }
   } catch (error) {
     res.status(500).json({
-      message: 'Erro ao buscar produtos',
+      message: 'erro no servidor ao tentar fazer login',
       error: error.message,
     });
   }
 });
 
-// --- ROTA POST (ADICIONAR PRODUTO) ---
+// --- rota get (ler produtos) ---
+app.get('/api/produtos', async (req, res) => {
+  const { q } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const skip = (page - 1) * limit;
+
+  try {
+    const database = await connectToDatabase();
+    const productsCollection = database.collection('produtos');
+
+    let query = {};
+    if (q) {
+      query = {
+        $or: [
+          { name: { $regex: q, $options: 'i' } },
+          { palavras_chave: { $regex: q, $options: 'i' } },
+        ],
+      };
+    }
+
+    const totalProducts = await productsCollection.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await productsCollection
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    res.status(200).json({ products, totalPages, currentPage: page });
+  } catch (error) {
+    res.status(500).json({
+      message: 'erro ao buscar produtos',
+      error: error.message,
+    });
+  }
+});
+
+// --- rota post (adicionar produto) ---
 app.post('/api/produtos', async (req, res) => {
   const newProduct = req.body;
   try {
@@ -77,19 +98,19 @@ app.post('/api/produtos', async (req, res) => {
     res.status(201).json({ ...newProduct, _id: result.insertedId });
   } catch (error) {
     res.status(500).json({
-      message: 'Erro ao adicionar produto',
+      message: 'erro ao adicionar produto',
       error: error.message,
     });
   }
 });
 
-// --- ROTA PUT (EDITAR PRODUTO) ---
+// --- rota put (editar produto) ---
 app.put('/api/produtos/:id', async (req, res) => {
   const { id } = req.params;
   const updatedData = req.body;
 
   if (!ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'ID de produto inválido.' });
+    return res.status(400).json({ message: 'id de produto inválido.' });
   }
   delete updatedData._id;
 
@@ -101,23 +122,23 @@ app.put('/api/produtos/:id', async (req, res) => {
       { $set: updatedData },
     );
     if (result.matchedCount === 0) {
-      return res.status(404).json({ message: 'Produto não encontrado' });
+      return res.status(404).json({ message: 'produto não encontrado' });
     }
     res.status(200).json({ ...updatedData, _id: id });
   } catch (error) {
     res.status(500).json({
-      message: 'Erro ao editar produto',
+      message: 'erro ao editar produto',
       error: error.message,
     });
   }
 });
 
-// --- ROTA DELETE (APAGAR PRODUTO) ---
+// --- rota delete (apagar produto) ---
 app.delete('/api/produtos/:id', async (req, res) => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'ID de produto inválido.' });
+    return res.status(400).json({ message: 'id de produto inválido.' });
   }
 
   try {
@@ -127,12 +148,12 @@ app.delete('/api/produtos/:id', async (req, res) => {
       _id: new ObjectId(id),
     });
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: 'Produto não encontrado' });
+      return res.status(404).json({ message: 'produto não encontrado' });
     }
-    res.status(200).json({ message: 'Produto deletado com sucesso' });
+    res.status(200).json({ message: 'produto deletado com sucesso' });
   } catch (error) {
     res.status(500).json({
-      message: 'Erro ao deletar produto',
+      message: 'erro ao deletar produto',
       error: error.message,
     });
   }
