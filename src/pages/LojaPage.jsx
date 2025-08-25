@@ -45,31 +45,33 @@ function LojaPage() {
   const [selectedColor, setSelectedColor] = useState('todos');
 
   // --- EFEITOS (CARREGAMENTO E SALVAMENTO DE DADOS) ---
-
-  // Carrega produtos e solicitações do LocalStorage (ou do arquivo JSON) na primeira vez
+  // carrega produtos do backend
   useEffect(() => {
-    // 1. Busca os produtos da nossa nova API
     const fetchProducts = async () => {
       try {
-        // Faz a chamada para a rota que criamos na Vercel
-        const response = await fetch('/api/produtos');
+        // faz a chamada para a rota, incluindo o termo de busca
+        const response = await fetch(`/api/produtos?q=${searchTerm}`);
         const data = await response.json();
-        setProducts(data); // Atualiza o estado com os produtos do banco de dados
+        setProducts(data); // atualiza o estado com os produtos do banco de dados
       } catch (error) {
-        console.error('Falha ao buscar produtos da API:', error);
-        // Opcional: carregar do localStorage como fallback se a API falhar
-        // const savedProducts = localStorage.getItem('products');
-        // if (savedProducts) setProducts(JSON.parse(savedProducts));
+        console.error('falha ao buscar produtos da api:', error);
       }
     };
 
-    fetchProducts(); // Executa a função de busca
+    // adiciona um pequeno delay para não fazer uma busca a cada tecla digitada
+    const delayDebounceFn = setTimeout(() => {
+      fetchProducts();
+    }, 300); // espera 300ms após o usuário parar de digitar
 
-    // 2. Mantém o carregamento das outras informações do localStorage
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]); // executa o efeito sempre que o searchTerm mudar
+
+  // carrega outras informações do localstorage
+  useEffect(() => {
     const savedRequests = localStorage.getItem('productRequests');
     if (savedRequests) setRequests(JSON.parse(savedRequests));
 
-    const savedPromos = localStorage.getItem('promoSettings'); // NOVO
+    const savedPromos = localStorage.getItem('promoSettings');
     if (savedPromos) setPromoSettings(JSON.parse(savedPromos));
   }, []);
 
