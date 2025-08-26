@@ -7,7 +7,7 @@ import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 import FilterDropdown from '../components/FilterDropdown';
-import Loader from '../components/Loader'; // importando o loader
+import Loader from '../components/Loader';
 
 function LojaPage() {
   // --- estados principais ---
@@ -30,7 +30,6 @@ function LojaPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
-      // constrói a query string com todos os filtros
       const params = new URLSearchParams({
         q: searchTerm,
         page: currentPage,
@@ -51,7 +50,6 @@ function LojaPage() {
       }
     };
 
-    // debounce para evitar chamadas excessivas na api ao digitar
     const delayDebounceFn = setTimeout(fetchProducts, 300);
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, currentPage, activeCategory, selectedSize, selectedColor]);
@@ -60,7 +58,7 @@ function LojaPage() {
   useEffect(() => {
     const fetchAllProductsForFilters = async () => {
       try {
-        const response = await fetch('/api/produtos?limit=1000'); // busca todos
+        const response = await fetch('/api/produtos?limit=1000');
         const data = await response.json();
         setAllProductsForFilters(data.products || []);
       } catch (error) {
@@ -82,18 +80,39 @@ function LojaPage() {
     fetchPromotions();
   }, []);
 
-  // calcula as cores disponíveis a partir de todos os produtos
-  const availableColors = useMemo(() => {
-    const allColors = allProductsForFilters
-      .flatMap((p) => p.cores || [])
-      .reduce((acc, color) => {
-        if (color && color.nome && !acc.some((c) => c.nome === color.nome)) {
-          acc.push(color);
-        }
-        return acc;
-      }, []);
-    return allColors.sort((a, b) => a.nome.localeCompare(b.nome));
-  }, [allProductsForFilters]);
+  // calcula dinamicamente os filtros disponíveis
+  const { availableCategories, availableSizes, availableColors } =
+    useMemo(() => {
+      const categories = [
+        ...new Set(
+          allProductsForFilters.map((p) => p.categoria).filter(Boolean),
+        ),
+      ].sort();
+
+      const sizes = [
+        ...new Set(
+          allProductsForFilters.flatMap((p) =>
+            p.estoque ? Object.keys(p.estoque) : [],
+          ),
+        ),
+      ].sort();
+
+      const colors = allProductsForFilters
+        .flatMap((p) => p.cores || [])
+        .reduce((acc, color) => {
+          if (color && color.nome && !acc.some((c) => c.nome === color.nome)) {
+            acc.push(color);
+          }
+          return acc;
+        }, [])
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+
+      return {
+        availableCategories: categories,
+        availableSizes: sizes,
+        availableColors: colors,
+      };
+    }, [allProductsForFilters]);
 
   const handleClearFilters = () => {
     setActiveCategory('todos');
@@ -105,12 +124,12 @@ function LojaPage() {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // reseta a página ao buscar
+    setCurrentPage(1);
   };
 
   const handleFilterChange = (setter) => (value) => {
     setter(value);
-    setCurrentPage(1); // reseta a página ao mudar filtro
+    setCurrentPage(1);
   };
 
   return (
@@ -137,11 +156,13 @@ function LojaPage() {
             <FilterDropdown
               activeCategory={activeCategory}
               onCategoryChange={handleFilterChange(setActiveCategory)}
-              availableColors={availableColors}
+              availableCategories={availableCategories}
               selectedColor={selectedColor}
               onColorChange={handleFilterChange(setSelectedColor)}
+              availableColors={availableColors}
               selectedSize={selectedSize}
               onSizeChange={handleFilterChange(setSelectedSize)}
+              availableSizes={availableSizes}
               onClearFilters={handleClearFilters}
             />
           </div>
