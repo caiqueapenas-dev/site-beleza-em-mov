@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; // importa o hook
 
 function Cart() {
-  // pega tudo o que precisa do contexto
+  // pega tudo o que precisa do contexto, corrigindo a desestruturação
   const {
-    isOpen,
+    isCartOpen,
     setIsCartOpen,
     cartItems,
     increaseQuantity,
@@ -16,7 +16,8 @@ function Cart() {
   } = useCart();
   const navigate = useNavigate();
 
-  if (!isOpen) {
+  // se o carrinho não estiver aberto, não renderiza nada
+  if (!isCartOpen) {
     return null;
   }
 
