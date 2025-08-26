@@ -6,20 +6,9 @@ import { Helmet } from 'react-helmet-async';
 import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-import Cart from '../components/Cart';
 import FilterDropdown from '../components/FilterDropdown';
-import { useCart } from '../context/CartContext';
 
 function LojaPage() {
-  const {
-    isCartOpen,
-    setIsCartOpen,
-    cartItems,
-    increaseQuantity,
-    decreaseQuantity,
-    removeFromCart,
-  } = useCart();
-
   // --- estados principais ---
   const [products, setProducts] = useState([]);
   const [promoSettings, setPromoSettings] = useState(null);
@@ -196,15 +185,6 @@ function LojaPage() {
       </main>
 
       <Footer />
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onIncreaseQuantity={increaseQuantity}
-        onDecreaseQuantity={decreaseQuantity}
-        onRemoveItem={removeFromCart}
-        onCheckout={() => navigate('/checkout', { state: { items: cartItems } })}
-      />
     </>
   );
 }

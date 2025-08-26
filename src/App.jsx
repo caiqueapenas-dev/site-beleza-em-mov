@@ -16,11 +16,12 @@ import SobrePage from './pages/SobrePage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import CheckoutPage from './pages/CheckoutPage';
-import ProductPage from './pages/ProductPage'; // nova página
+import ProductPage from './pages/ProductPage';
 
 // componentes e contexto
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
+import Cart from './components/Cart'; // importamos o carrinho aqui
 
 // componente interno para usar o hook useLocation
 function AppLayout() {
@@ -32,25 +33,28 @@ function AppLayout() {
   }, [pathname]);
 
   return (
-    <Routes>
-      {/* rotas públicas */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/loja" element={<LojaPage />} />
-      <Route path="/sobre" element={<SobrePage />} />
-      <Route path="/admin" element={<AdminLoginPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/produto/:id" element={<ProductPage />} />{' '}
+    <>
+      <Routes>
+        {/* rotas públicas */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/loja" element={<LojaPage />} />
+        <Route path="/sobre" element={<SobrePage />} />
+        <Route path="/admin" element={<AdminLoginPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/produto/:id" element={<ProductPage />} />
 
-      {/* rota protegida */}
-      <Route
-        path="/admin/dashboard"
-        element={
-          <ProtectedRoute>
-            <AdminDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        {/* rota protegida */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+      <Cart /> {/* renderizamos o carrinho aqui para ser global */}
+    </>
   );
 }
 
