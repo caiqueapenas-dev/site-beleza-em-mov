@@ -1,19 +1,18 @@
 // src/pages/AdminDashboardPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-// Componentes
+// componentes
 import AdminModal from '../components/AdminModal';
 import ProductForm from '../components/ProductForm';
 import Notification from '../components/Notification';
 import PromotionSettings from '../components/PromotionSettings';
 import ProductsTable from '../components/ProductsTable';
 import RequestsTable from '../components/RequestsTable';
-import OrdersDashboard from '../components/OrdersDashboard'; // Import do novo componente
+import OrdersDashboard from '../components/OrdersDashboard';
 
 function AdminDashboardPage() {
-  // --- ESTADOS DO COMPONENTE ---
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -38,22 +37,21 @@ function AdminDashboardPage() {
   const [adminSearchTerm, setAdminSearchTerm] = useState('');
   const [adminCategory, setAdminCategory] = useState('todos');
 
-  // --- EFEITOS DE CARREGAMENTO E SALVAMENTO ---
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/produtos?limit=1000'); // busca todos os produtos
+      if (!response.ok) {
+        throw new Error('falha ao carregar os produtos da api.');
+      }
+      const data = await response.json();
+      setProducts(data.products);
+    } catch (error) {
+      console.error('falha ao buscar produtos da api:', error);
+      showNotification('erro ao carregar produtos.', 'error');
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/produtos');
-        if (!response.ok) {
-          throw new Error('Falha ao carregar os produtos da API.');
-        }
-        const data = await response.json();
-        setProducts(data.products);
-      } catch (error) {
-        console.error('Falha ao buscar produtos da API:', error);
-        showNotification('Erro ao carregar produtos.', 'error');
-      }
-    };
     fetchProducts();
 
     const savedRequests = localStorage.getItem('productRequests');
@@ -65,16 +63,17 @@ function AdminDashboardPage() {
         const data = await response.json();
         setPromoSettings(data);
       } catch (error) {
-        console.error('Falha ao buscar promoções:', error);
-        showNotification('Erro ao carregar promoções.', 'error');
+        console.error('falha ao buscar promoções:', error);
+        showNotification('erro ao carregar promoções.', 'error');
       }
     };
     fetchPromotions();
   }, []);
 
-  // --- FUNÇÕES DE LÓGICA ---
-
-  const handleLogout = () => navigate('/admin');
+  const handleLogout = () => {
+    logout();
+    navigate('/admin');
+  };
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type, visible: true });
@@ -90,7 +89,7 @@ function AdminDashboardPage() {
     );
     setRequests(updatedRequests);
     localStorage.setItem('productRequests', JSON.stringify(updatedRequests));
-    showNotification('Solicitação marcada como vista!');
+    showNotification('solicitação marcada como vista!');
   };
 
   const handleOpenAddModal = () => {
@@ -112,35 +111,34 @@ function AdminDashboardPage() {
     try {
       const response = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error(`Falha ao ${method === 'PUT' ? 'editar' : 'adicionar'} produto`);
-      }
-
-      const savedProduct = await response.json();
-      if (editingProduct) {
-        setProducts((prev) =>
-          prev.map((p) => (p._id === editingProduct._id ? savedProduct : p)),
+        throw new Error(
+          `falha ao ${method === 'PUT' ? 'editar' : 'adicionar'} produto`,
         );
-        showNotification('Produto editado com sucesso!');
-      } else {
-        setProducts((prev) => [...prev, savedProduct]);
-        showNotification('Produto adicionado com sucesso!');
       }
+      // atualiza a lista de produtos após salvar
+      await fetchProducts();
+      showNotification(
+        `produto ${method === 'PUT' ? 'editado' : 'adicionado'} com sucesso!`,
+      );
       setIsModalOpen(false);
     } catch (error) {
-      console.error(`Falha ao salvar produto:`, error);
-      showNotification(`Erro ao ${method === 'PUT' ? 'editar' : 'adicionar'} produto.`, 'error');
+      console.error(`falha ao salvar produto:`, error);
+      showNotification(
+        `erro ao ${method === 'PUT' ? 'editar' : 'adicionar'} produto.`,
+        'error',
+      );
     }
   };
 
   const handleDeleteProduct = async (productIdToDelete) => {
     if (
       !window.confirm(
-        'Tem certeza que deseja remover este produto? A ação não pode ser desfeita.',
+        'tem certeza que deseja remover este produto? a ação não pode ser desfeita.',
       )
     ) {
       return;
@@ -152,14 +150,14 @@ function AdminDashboardPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Falha ao deletar o produto');
+        throw new Error('falha ao deletar o produto');
       }
 
       setProducts((prev) => prev.filter((p) => p._id !== productIdToDelete));
-      showNotification('Produto removido com sucesso!');
+      showNotification('produto removido com sucesso!');
     } catch (error) {
-      console.error('Erro ao deletar produto:', error);
-      showNotification('Erro ao remover produto.', 'error');
+      console.error('erro ao deletar produto:', error);
+      showNotification('erro ao remover produto.', 'error');
     }
   };
 
@@ -167,106 +165,93 @@ function AdminDashboardPage() {
     try {
       await fetch('/api/promotions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify(newSettings),
       });
       setPromoSettings(newSettings);
-      showNotification('Promoções salvas com sucesso!');
+      showNotification('promoções salvas com sucesso!');
     } catch (error) {
-      console.error('Falha ao salvar promoções:', error);
-      showNotification('Erro ao salvar promoções.', 'error');
+      console.error('falha ao salvar promoções:', error);
+      showNotification('erro ao salvar promoções.', 'error');
     }
   };
 
-  // --- PREPARAÇÃO DE DADOS ---
-  const allNames = [...new Set(products.map((p) => p.name))];
-  const allMaterials = [
-    ...new Set(products.map((p) => p.material).filter(Boolean)),
-  ];
-  const allKeywords = [
-    ...new Set(
-      products.flatMap((p) =>
-        p.palavras_chave
-          ? p.palavras_chave.split(',').map((k) => k.trim())
-          : [],
+  // usa usememo para evitar recálculos desnecessários
+  const { allCategories, allMaterials, allKeywords } = useMemo(() => {
+    const categories = [
+      ...new Set(products.map((p) => p.categoria).filter(Boolean)),
+    ].sort();
+    const materials = [
+      ...new Set(products.map((p) => p.material).filter(Boolean)),
+    ].sort();
+    const keywords = [
+      ...new Set(
+        products.flatMap((p) =>
+          p.palavras_chave
+            ? p.palavras_chave.split(',').map((k) => k.trim())
+            : [],
+        ),
       ),
-    ),
-  ];
-  const allCategories = [
-    ...new Set(products.map((p) => p.categoria).filter(Boolean)),
-  ];
+    ].sort();
+    return {
+      allCategories: categories,
+      allMaterials: materials,
+      allKeywords: keywords,
+    };
+  }, [products]);
+
   const unseenRequestsCount = requests.filter((req) => !req.seen).length;
 
-  // --- RENDERIZAÇÃO ---
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
-            Painel de Controle
+            painel de controle
           </h1>
           <p className="text-gray-500">
-            Gerencie seus produtos, promoções e estoques.
+            gerencie seus produtos, promoções e estoques.
           </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <span className="text-gray-600">Bem-vindo, {user?.name || 'Admin'}!</span>
+          <span className="text-gray-600">
+            bem-vindo, {user?.name || 'admin'}!
+          </span>
           <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"
           >
-            Sair
+            sair
           </button>
         </div>
       </header>
 
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-          <button
-            onClick={() => setActiveTab('products')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'products'
-                ? 'border-cyan-500 text-cyan-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Produtos
-          </button>
-          <button
-            onClick={() => setActiveTab('promotions')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'promotions'
-                ? 'border-cyan-500 text-cyan-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Promoções
-          </button>
-          <button
-            onClick={() => setActiveTab('requests')}
-            className={`relative whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'requests'
-                ? 'border-cyan-500 text-cyan-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Solicitações
-            {unseenRequestsCount > 0 && (
-              <span className="absolute top-3 -right-3 ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {unseenRequestsCount}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'orders'
-                ? 'border-cyan-500 text-cyan-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Pedidos
-          </button>
+          {/* abas de navegação */}
+          {[
+            { key: 'products', label: 'produtos' },
+            { key: 'promotions', label: 'promoções' },
+            { key: 'requests', label: 'solicitações' },
+            { key: 'orders', label: 'pedidos' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`relative whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === tab.key
+                  ? 'border-cyan-500 text-cyan-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {tab.label}
+              {tab.key === 'requests' && unseenRequestsCount > 0 && (
+                <span className="absolute top-3 -right-3 ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {unseenRequestsCount}
+                </span>
+              )}
+            </button>
+          ))}
         </nav>
       </div>
 
@@ -314,16 +299,15 @@ function AdminDashboardPage() {
       <AdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingProduct ? 'Editar Produto' : 'Adicionar Novo Produto'}
+        title={editingProduct ? 'editar produto' : 'adicionar novo produto'}
       >
         <ProductForm
           onSubmit={handleSaveProduct}
-          initialData={editingProduct || {}}
+          initialData={editingProduct}
           onCancel={() => setIsModalOpen(false)}
-          allNames={allNames}
+          allCategories={allCategories}
           allMaterials={allMaterials}
           allKeywords={allKeywords}
-          allCategories={allCategories}
         />
       </AdminModal>
 

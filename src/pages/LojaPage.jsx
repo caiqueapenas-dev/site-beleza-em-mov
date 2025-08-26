@@ -1,43 +1,31 @@
 // src/pages/LojaPage.jsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Notification from '../components/Notification';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 // componentes
 import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-import ProductModal from '../components/ProductModal';
 import Cart from '../components/Cart';
 import FilterDropdown from '../components/FilterDropdown';
+import { useCart } from '../context/CartContext';
 
 function LojaPage() {
-  const navigate = useNavigate();
+  const {
+    isCartOpen,
+    setIsCartOpen,
+    cartItems,
+    increaseQuantity,
+    decreaseQuantity,
+    removeFromCart,
+  } = useCart();
 
   // --- estados principais ---
   const [products, setProducts] = useState([]);
-  const [requests, setRequests] = useState([]);
   const [promoSettings, setPromoSettings] = useState(null);
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem('cartItems');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-  const [notification, setNotification] = useState({
-    message: '',
-    type: 'success',
-    visible: false,
-  });
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type, visible: true });
-    setTimeout(() => {
-      setNotification((prev) => ({ ...prev, visible: false }));
-    }, 3000);
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   // --- estados de ui (interface do usuário) ---
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -47,35 +35,38 @@ function LojaPage() {
   const [selectedSize, setSelectedSize] = useState('todos');
   const [selectedColor, setSelectedColor] = useState('todos');
 
-  // --- efeitos (carregamento e salvamento de dados) ---
-
-  // carrega produtos do backend
+  // carrega produtos do backend com base nos filtros
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
+      // constrói a query string com todos os filtros
+      const params = new URLSearchParams({
+        q: searchTerm,
+        page: currentPage,
+        categoria: activeCategory,
+        tamanho: selectedSize,
+        cor: selectedColor,
+      });
+
       try {
-        const response = await fetch(
-          `/api/produtos?q=${searchTerm}&page=${currentPage}`,
-        );
+        const response = await fetch(`/api/produtos?${params.toString()}`);
         const data = await response.json();
-        setProducts(data.products);
-        setTotalPages(data.totalPages);
+        setProducts(data.products || []);
+        setTotalPages(data.totalPages || 1);
       } catch (error) {
         console.error('falha ao buscar produtos da api:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const delayDebounceFn = setTimeout(() => {
-      fetchProducts();
-    }, 300);
-
+    // debounce para evitar chamadas excessivas na api ao digitar
+    const delayDebounceFn = setTimeout(fetchProducts, 300);
     return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm, currentPage]);
+  }, [searchTerm, currentPage, activeCategory, selectedSize, selectedColor]);
 
-  // carrega outras informações
+  // carrega promoções (banner)
   useEffect(() => {
-    const savedRequests = localStorage.getItem('productRequests');
-    if (savedRequests) setRequests(JSON.parse(savedRequests));
-
     const fetchPromotions = async () => {
       try {
         const response = await fetch('/api/promotions');
@@ -88,107 +79,18 @@ function LojaPage() {
     fetchPromotions();
   }, []);
 
-  // salva o carrinho no localstorage sempre que ele muda
-  useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  // salva as solicitações no localstorage sempre que elas mudam
-  useEffect(() => {
-    localStorage.setItem('productRequests', JSON.stringify(requests));
-  }, [requests]);
-
-  useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === 'products' && event.newValue) {
-        setProducts(JSON.parse(event.newValue));
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
-  // --- funções de manipulação ---
-
-  const handleProductClick = (product) => setSelectedProduct(product);
-  const handleCloseModal = () => setSelectedProduct(null);
-
-  const handleAddToCart = (product, size) => {
-    setCartItems((prev) => {
-      const itemExists = prev.find(
-        (item) => item._id === product._id && item.size === size,
-      );
-      if (itemExists) {
-        return prev.map((item) =>
-          item._id === product._id && item.size === size
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
-      }
-      return [...prev, { ...product, size, quantity: 1 }];
-    });
-    handleCloseModal();
-    setIsCartOpen(true);
-  };
-
-  const handleRequestSize = (product, size, requesterInfo) => {
-    const newRequest = {
-      id: Date.now(),
-      productName: product.name,
-      requestedSize: size,
-      requesterName: requesterInfo.name,
-      requesterPhone: requesterInfo.phone,
-      timestamp: new Date().toISOString(),
-      seen: false,
-    };
-    setRequests((prev) => [...prev, newRequest]);
-    showNotification(
-      `obrigado, ${requesterInfo.name}! sua solicitação foi registrada com sucesso.`,
-    );
-    handleCloseModal();
-  };
-
-  const handleIncreaseQuantity = (itemId, itemSize) =>
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item._id === itemId && item.size === itemSize
-          ? { ...item, quantity: item.quantity + 1 }
-          : item,
-      ),
-    );
-
-  const handleDecreaseQuantity = (itemId, itemSize) =>
-    setCartItems((prev) =>
-      prev
-        .map((item) =>
-          item._id === itemId && item.size === itemSize
-            ? { ...item, quantity: item.quantity - 1 }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
-    );
-
-  const handleRemoveItem = (itemId, itemSize) =>
-    setCartItems(
-      (prev) =>
-        prev.filter((item) => !(item._id === itemId && item.size === itemSize)),
-    );
-
-  const handleCheckout = () => {
-    if (cartItems.length === 0) return;
-    navigate('/checkout', { state: { items: cartItems } });
-  };
-
-  // --- lógica de filtragem ---
-
-  const availableColors = products
-    .flatMap((p) => p.cores || [])
-    .reduce((unique, color) => {
-      if (!unique.some((c) => c.nome === color.nome)) unique.push(color);
-      return unique;
-    }, []);
+  const availableColors = useMemo(() => {
+    // idealmente, isso viria de uma api separada, mas por enquanto calculamos
+    const allColors = products
+      .flatMap((p) => p.cores || [])
+      .reduce((acc, color) => {
+        if (!acc.some((c) => c.nome === color.nome)) {
+          acc.push(color);
+        }
+        return acc;
+      }, []);
+    return allColors;
+  }, [products]);
 
   const handleClearFilters = () => {
     setActiveCategory('todos');
@@ -198,34 +100,16 @@ function LojaPage() {
     setCurrentPage(1);
   };
 
-  const filteredProducts = products
-    .filter((p) => activeCategory === 'todos' || p.categoria === activeCategory)
-    .filter(
-      (p) =>
-        selectedSize === 'todos' || (p.estoque && selectedSize in p.estoque),
-    )
-    .filter(
-      (p) =>
-        selectedColor === 'todos' ||
-        (p.cores && p.cores.some((c) => c.nome === selectedColor)),
-    );
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // reseta a página ao buscar
+  };
 
-  const relatedProducts = selectedProduct
-    ? products
-        .filter(
-          (p) =>
-            p.categoria === selectedProduct.categoria &&
-            p._id !== selectedProduct._id,
-        )
-        .slice(0, 4)
-    : [];
+  const handleFilterChange = (setter) => (value) => {
+    setter(value);
+    setCurrentPage(1); // reseta a página ao mudar filtro
+  };
 
-  const totalItemsInCart = cartItems.reduce(
-    (sum, item) => sum + item.quantity,
-    0,
-  );
-
-  // --- renderização ---
   return (
     <>
       <Helmet>
@@ -238,9 +122,7 @@ function LojaPage() {
 
       <LojaHeader
         searchTerm={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
-        cartItemCount={totalItemsInCart}
-        onCartClick={() => setIsCartOpen(true)}
+        onSearchChange={handleSearchChange}
         promoBanner={promoSettings?.banner}
       />
       <main className="container mx-auto px-4 py-8">
@@ -251,40 +133,40 @@ function LojaPage() {
             </h2>
             <FilterDropdown
               activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
+              onCategoryChange={handleFilterChange(setActiveCategory)}
               availableColors={availableColors}
               selectedColor={selectedColor}
-              onColorChange={setSelectedColor}
+              onColorChange={handleFilterChange(setSelectedColor)}
               selectedSize={selectedSize}
-              onSizeChange={setSelectedSize}
+              onSizeChange={handleFilterChange(setSelectedSize)}
               onClearFilters={handleClearFilters}
             />
           </div>
 
-          <div
-            id="product-grid"
-            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
-          >
-            {filteredProducts.map((product) => (
+          {isLoading ? (
+            <div className="text-center py-12">carregando produtos...</div>
+          ) : (
+            <>
               <div
-                key={product._id}
-                onClick={() => handleProductClick(product)}
-                className="cursor-pointer"
+                id="product-grid"
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
               >
-                <ProductCard product={product} />
+                {products.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
               </div>
-            ))}
-          </div>
 
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-12 px-6 bg-gray-100 rounded-lg col-span-full mt-6">
-              <h3 className="text-2xl font-bold text-gray-800">
-                nenhum produto encontrado
-              </h3>
-              <p className="mt-2 text-gray-600">
-                tente usar outros filtros ou clique em "limpar filtros".
-              </p>
-            </div>
+              {products.length === 0 && (
+                <div className="text-center py-12 px-6 bg-gray-100 rounded-lg col-span-full mt-6">
+                  <h3 className="text-2xl font-bold text-gray-800">
+                    nenhum produto encontrado
+                  </h3>
+                  <p className="mt-2 text-gray-600">
+                    tente usar outros filtros ou clique em "limpar filtros".
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -314,28 +196,14 @@ function LojaPage() {
       </main>
 
       <Footer />
-      <ProductModal
-        product={selectedProduct}
-        onClose={handleCloseModal}
-        onAddToCart={handleAddToCart}
-        onRequestSize={handleRequestSize}
-        relatedProducts={relatedProducts}
-        onProductClick={handleProductClick}
-      />
-
       <Cart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         cartItems={cartItems}
-        onCheckout={handleCheckout}
-        onIncreaseQuantity={handleIncreaseQuantity}
-        onDecreaseQuantity={handleDecreaseQuantity}
-        onRemoveItem={handleRemoveItem}
-      />
-      <Notification
-        message={notification.message}
-        type={notification.type}
-        visible={notification.visible}
+        onIncreaseQuantity={increaseQuantity}
+        onDecreaseQuantity={decreaseQuantity}
+        onRemoveItem={removeFromCart}
+        onCheckout={() => navigate('/checkout', { state: { items: cartItems } })}
       />
     </>
   );

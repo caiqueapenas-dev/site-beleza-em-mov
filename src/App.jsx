@@ -1,6 +1,5 @@
 // src/App.jsx
 import React, { useEffect } from 'react';
-// Importe o BrowserRouter como Router
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,47 +9,53 @@ import {
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-// Páginas
+// páginas
 import HomePage from './pages/HomePage';
 import LojaPage from './pages/LojaPage';
 import SobrePage from './pages/SobrePage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-import CheckoutPage from './pages/CheckoutPage'; // ADICIONE este import
+import CheckoutPage from './pages/CheckoutPage';
+import ProductPage from './pages/ProductPage'; // nova página
 
-// Componentes
+// componentes e contexto
 import ProtectedRoute from './components/ProtectedRoute';
+import { CartProvider } from './context/CartContext';
 
-// Criamos um componente interno para que ele possa usar o hook useLocation
+// componente interno para usar o hook useLocation
 function AppLayout() {
   const { pathname } = useLocation();
 
-  // Efeito para rolar para o topo da página a cada mudança de rota
+  // efeito para rolar para o topo da página a cada mudança de rota
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
   return (
     <Routes>
-      {/* Rotas Públicas */}
+      {/* rotas públicas */}
       <Route path="/" element={<HomePage />} />
       <Route path="/loja" element={<LojaPage />} />
       <Route path="/sobre" element={<SobrePage />} />
       <Route path="/admin" element={<AdminLoginPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/produto/:id" element={<ProductPage />} />{' '}
 
-      {/* Rota Protegida */}
+      {/* rota protegida */}
       <Route
         path="/admin/dashboard"
-        element={<AdminDashboardPage />} // Removido o <ProtectedRoute>
+        element={
+          <ProtectedRoute>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
       />
-
-      <Route path="/checkout" element={<CheckoutPage />} />
     </Routes>
   );
 }
 
 function App() {
-  // Efeito para inicializar a biblioteca de animações
+  // efeito para inicializar a biblioteca de animações
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -59,9 +64,11 @@ function App() {
   }, []);
 
   return (
-    // O Router deve ser o componente de mais alto nível que envolve tudo que usa rotas
+    // o router e o cartprovider envolvem toda a aplicação
     <Router>
-      <AppLayout />
+      <CartProvider>
+        <AppLayout />
+      </CartProvider>
     </Router>
   );
 }

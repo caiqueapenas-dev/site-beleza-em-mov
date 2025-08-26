@@ -2,7 +2,6 @@
 const express = require('express');
 const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const app = express();
-
 const uri = process.env.MONGODB_URI;
 let cachedDb = null;
 
@@ -23,7 +22,6 @@ async function connectToDatabase() {
       deprecationErrors: true,
     },
   });
-
   await client.connect();
   const db = client.db('belezaEmMovDB');
   cachedDb = db; // armazena a conexão no cache
@@ -31,7 +29,6 @@ async function connectToDatabase() {
 }
 
 app.use(express.json());
-
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -43,10 +40,15 @@ app.post('/api/login', async (req, res) => {
     const database = await connectToDatabase();
     const usersCollection = database.collection('users');
 
-    const user = await usersCollection.findOne({ email: email, password: password });
+    const user = await usersCollection.findOne({
+      email: email,
+      password: password,
+    });
 
     if (user) {
-      res.status(200).json({ success: true, user: { email: user.email, name: user.name } });
+      res
+        .status(200)
+        .json({ success: true, user: { email: user.email, name: user.name } });
     } else {
       res.status(401).json({ success: false, message: 'email ou senha inválidos.' });
     }
@@ -57,10 +59,10 @@ app.post('/api/login', async (req, res) => {
     });
   }
 });
-
 // --- rota get (ler produtos) ---
 app.get('/api/produtos', async (req, res) => {
-  const { q } = req.query;
+  // extrai todos os possíveis filtros da query string
+  const { q, categoria, tamanho, cor } = req.query;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 12;
   const skip = (page - 1) * limit;
@@ -69,14 +71,26 @@ app.get('/api/produtos', async (req, res) => {
     const database = await connectToDatabase();
     const productsCollection = database.collection('produtos');
 
+    // constrói a query do mongodb dinamicamente
     let query = {};
+
     if (q) {
-      query = {
-        $or: [
-          { name: { $regex: q, $options: 'i' } },
-          { palavras_chave: { $regex: q, $options: 'i' } },
-        ],
-      };
+      query.$or = [
+        { name: { $regex: q, $options: 'i' } },
+        { palavras_chave: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+      ];
+    }
+    if (categoria && categoria !== 'todos') {
+      query.categoria = categoria;
+    }
+    if (tamanho && tamanho !== 'todos') {
+      // checa se a chave do tamanho existe e tem valor maior que 0
+      query[`estoque.${tamanho.toLowerCase()}`] = { $gt: 0 };
+    }
+    if (cor && cor !== 'todos') {
+      // $elemMatch para buscar dentro de um array de objetos
+      query.cores = { $elemMatch: { nome: cor } };
     }
 
     const totalProducts = await productsCollection.countDocuments(query);
@@ -92,6 +106,31 @@ app.get('/api/produtos', async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: 'erro ao buscar produtos',
+      error: error.message,
+    });
+  }
+});
+
+// --- ROTA GET (LER PRODUTO ESPECÍFICO POR ID) ---
+app.get('/api/produtos/:id', async (req, res) => {
+  const { id } = req.params;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'id de produto inválido.' });
+  }
+
+  try {
+    const database = await connectToDatabase();
+    const productsCollection = database.collection('produtos');
+    const product = await productsCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!product) {
+      return res.status(404).json({ message: 'produto não encontrado' });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({
+      message: 'erro ao buscar produto',
       error: error.message,
     });
   }
@@ -123,7 +162,6 @@ app.get('/api/promotions', async (req, res) => {
       .json({ message: 'erro ao buscar promoções', error: error.message });
   }
 });
-
 app.post('/api/promotions', async (req, res) => {
   const newSettings = req.body;
   try {
@@ -137,7 +175,6 @@ app.post('/api/promotions', async (req, res) => {
       .json({ message: 'erro ao salvar promoções', error: error.message });
   }
 });
-
 // --- rota post (adicionar produto) ---
 app.post('/api/produtos', async (req, res) => {
   const newProduct = req.body;
@@ -153,7 +190,6 @@ app.post('/api/produtos', async (req, res) => {
     });
   }
 });
-
 // --- rota put (editar produto) ---
 app.put('/api/produtos/:id', async (req, res) => {
   const { id } = req.params;
@@ -182,7 +218,6 @@ app.put('/api/produtos/:id', async (req, res) => {
     });
   }
 });
-
 // --- rota delete (apagar produto) ---
 app.delete('/api/produtos/:id', async (req, res) => {
   const { id } = req.params;
@@ -200,6 +235,7 @@ app.delete('/api/produtos/:id', async (req, res) => {
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: 'produto não encontrado' });
     }
+
     res.status(200).json({ message: 'produto deletado com sucesso' });
   } catch (error) {
     res.status(500).json({
@@ -208,5 +244,4 @@ app.delete('/api/produtos/:id', async (req, res) => {
     });
   }
 });
-
 module.exports = app;
