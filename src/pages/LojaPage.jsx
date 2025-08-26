@@ -7,10 +7,12 @@ import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 import FilterDropdown from '../components/FilterDropdown';
+import Loader from '../components/Loader'; // importando o loader
 
 function LojaPage() {
   // --- estados principais ---
   const [products, setProducts] = useState([]);
+  const [allProductsForFilters, setAllProductsForFilters] = useState([]);
   const [promoSettings, setPromoSettings] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -54,8 +56,20 @@ function LojaPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, currentPage, activeCategory, selectedSize, selectedColor]);
 
-  // carrega promoções (banner)
+  // carrega todas as opções de filtros uma única vez
   useEffect(() => {
+    const fetchAllProductsForFilters = async () => {
+      try {
+        const response = await fetch('/api/produtos?limit=1000'); // busca todos
+        const data = await response.json();
+        setAllProductsForFilters(data.products || []);
+      } catch (error) {
+        console.error('falha ao buscar produtos para filtros:', error);
+      }
+    };
+
+    fetchAllProductsForFilters();
+
     const fetchPromotions = async () => {
       try {
         const response = await fetch('/api/promotions');
@@ -68,18 +82,18 @@ function LojaPage() {
     fetchPromotions();
   }, []);
 
+  // calcula as cores disponíveis a partir de todos os produtos
   const availableColors = useMemo(() => {
-    // idealmente, isso viria de uma api separada, mas por enquanto calculamos
-    const allColors = products
+    const allColors = allProductsForFilters
       .flatMap((p) => p.cores || [])
       .reduce((acc, color) => {
-        if (!acc.some((c) => c.nome === color.nome)) {
+        if (color && color.nome && !acc.some((c) => c.nome === color.nome)) {
           acc.push(color);
         }
         return acc;
       }, []);
-    return allColors;
-  }, [products]);
+    return allColors.sort((a, b) => a.nome.localeCompare(b.nome));
+  }, [allProductsForFilters]);
 
   const handleClearFilters = () => {
     setActiveCategory('todos');
@@ -133,7 +147,9 @@ function LojaPage() {
           </div>
 
           {isLoading ? (
-            <div className="text-center py-12">carregando produtos...</div>
+            <div className="text-center py-24">
+              <Loader />
+            </div>
           ) : (
             <>
               <div

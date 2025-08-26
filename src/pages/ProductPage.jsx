@@ -8,6 +8,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import Loader from '../components/Loader'; // importando o loader
 import { useCart } from '../context/CartContext';
 import Notification from '../components/Notification';
 
@@ -18,6 +19,7 @@ function ProductPage() {
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState({
     message: '',
     visible: false,
@@ -25,6 +27,7 @@ function ProductPage() {
 
   useEffect(() => {
     const fetchProductData = async () => {
+      setIsLoading(true);
       try {
         // busca o produto principal
         const productRes = await fetch(`/api/produtos/${id}`);
@@ -44,7 +47,8 @@ function ProductPage() {
         );
       } catch (error) {
         console.error('falha ao buscar dados do produto:', error);
-        // idealmente, redirecionar para uma página de erro 404
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -67,8 +71,23 @@ function ProductPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
   if (!product) {
-    return <div>carregando...</div>; // ou um componente de loading
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl font-bold">produto não encontrado</h2>
+        <Link to="/loja" className="text-cyan-600 hover:underline mt-4 inline-block">
+          voltar para a loja
+        </Link>
+      </div>
+    );
   }
 
   const hasDiscount = product.desconto_percentual > 0;
