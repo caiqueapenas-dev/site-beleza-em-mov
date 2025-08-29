@@ -8,7 +8,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-import Loader from '../components/Loader'; // importando o loader
+import Loader from '../components/Loader';
 import { useCart } from '../context/CartContext';
 import Notification from '../components/Notification';
 
@@ -29,24 +29,21 @@ function ProductPage() {
     const fetchProductData = async () => {
       setIsLoading(true);
       try {
-        // busca o produto principal
         const productRes = await fetch(`/api/produtos/${id}`);
-        if (!productRes.ok) throw new Error('produto não encontrado');
+        if (!productRes.ok) throw new Error('Produto não encontrado');
         const productData = await productRes.json();
         setProduct(productData);
-        setSelectedSize(null); // reseta o tamanho ao carregar novo produto
+        setSelectedSize(null);
 
-        // busca produtos relacionados (mesma categoria)
         const relatedRes = await fetch(
           `/api/produtos?categoria=${productData.categoria}&limit=5`,
         );
         const relatedData = await relatedRes.json();
-        // filtra o produto atual da lista de relacionados e limita a 4
         setRelatedProducts(
           relatedData.products.filter((p) => p._id !== id).slice(0, 4),
         );
       } catch (error) {
-        console.error('falha ao buscar dados do produto:', error);
+        console.error('Falha ao buscar dados do produto:', error);
       } finally {
         setIsLoading(false);
       }
@@ -66,8 +63,7 @@ function ProductPage() {
 
   const handleAddToCartClick = () => {
     if (selectedSize && product) {
-      addToCart(product, selectedSize);
-      showNotification(`${product.name} foi adicionado ao carrinho!`);
+      addToCart(product, selectedSize, showNotification);
     }
   };
 
@@ -82,9 +78,9 @@ function ProductPage() {
   if (!product) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold">produto não encontrado</h2>
-        <Link to="/loja" className="text-cyan-600 hover:underline mt-4 inline-block">
-          voltar para a loja
+        <h2 className="text-2xl font-bold">Produto não encontrado</h2>
+        <Link to="/loja" className="text-brand-purple hover:underline mt-4 inline-block">
+          Voltar para a Loja
         </Link>
       </div>
     );
@@ -98,7 +94,7 @@ function ProductPage() {
   return (
     <>
       <Helmet>
-        <title>{`${product.name} - beleza em movimento`}</title>
+        <title>{`${product.name} - Beleza em Movimento`}</title>
         <meta name="description" content={product.description} />
       </Helmet>
 
@@ -106,7 +102,6 @@ function ProductPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {/* lado esquerdo: carrossel de imagens */}
           <div>
             <Carousel
               showThumbs={true}
@@ -120,7 +115,7 @@ function ProductPage() {
                   <div key={index}>
                     <img
                       src={url}
-                      alt={`${product.name} - imagem ${index + 1}`}
+                      alt={`${product.name} - Imagem ${index + 1}`}
                       className="rounded-lg object-cover"
                     />
                   </div>
@@ -129,7 +124,7 @@ function ProductPage() {
                 <div>
                   <img
                     src="https://via.placeholder.com/600"
-                    alt="imagem indisponível"
+                    alt="Imagem indisponível"
                     className="rounded-lg object-cover"
                   />
                 </div>
@@ -137,65 +132,78 @@ function ProductPage() {
             </Carousel>
           </div>
 
-          {/* lado direito: detalhes do produto */}
           <div className="flex flex-col">
             <h1 className="text-3xl lg:text-4xl font-bold">{product.name}</h1>
             <div className="my-4">
               <div className="flex items-baseline gap-3">
                 <p className="text-4xl font-light text-gray-800">
-                  {new Intl.NumberFormat('pt-br', {
+                  {new Intl.NumberFormat('pt-BR', {
                     style: 'currency',
-                    currency: 'brl',
+                    currency: 'BRL',
                   }).format(currentPrice)}
                 </p>
                 {hasDiscount && (
                   <p className="text-2xl font-light text-gray-400 line-through">
-                    {new Intl.NumberFormat('pt-br', {
+                    {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
-                      currency: 'brl',
+                      currency: 'BRL',
                     }).format(product.price)}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* seleção de tamanhos */}
             <div className="mt-4">
               <h3 className="text-sm font-semibold mb-2">
-                selecione o tamanho
+                Selecione o Tamanho
               </h3>
               <div className="flex flex-wrap gap-3">
                 {product.estoque &&
-                  Object.keys(product.estoque).map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`border rounded-md w-14 h-12 transition-colors ${
-                        selectedSize === size
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'border-gray-300 hover:bg-gray-100'
-                      }`}
-                    >
-                      {size.toUpperCase()}
-                    </button>
-                  ))}
+                  Object.keys(product.estoque).map((size) => {
+                    const isInStock = product.estoque[size] > 0;
+                    return isInStock ? (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`border rounded-md w-14 h-12 transition-colors ${
+                          selectedSize === size
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'border-gray-300 hover:bg-gray-100'
+                        }`}
+                      >
+                        {size.toUpperCase()}
+                      </button>
+                    ) : (
+                      <div
+                        key={size}
+                        className="relative"
+                        title="Produto esgotado"
+                      >
+                        <button
+                          disabled
+                          className="border rounded-md w-14 h-12 bg-gray-100 text-gray-400 cursor-not-allowed"
+                        >
+                          {size.toUpperCase()}
+                        </button>
+                        <div className="absolute top-1/2 left-0 w-full h-px bg-gray-400 transform -rotate-12"></div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
-            {/* botão de adicionar ao carrinho */}
             <div className="mt-8">
               <button
                 onClick={handleAddToCartClick}
                 disabled={!selectedSize}
-                className="w-full bg-cyan-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-brand-purple text-white py-4 rounded-lg font-bold text-lg hover:bg-brand-purple-dark disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                adicionar ao carrinho
+                Adicionar ao Carrinho
               </button>
             </div>
 
-            {/* descrição */}
             <div className="mt-8">
-              <h3 className="font-semibold mb-2">descrição</h3>
+              <h3 className="font-semibold mb-2">Descrição</h3>
               <p className="text-gray-600 leading-relaxed">
                 {product.description}
               </p>
@@ -203,11 +211,10 @@ function ProductPage() {
           </div>
         </div>
 
-        {/* produtos relacionados */}
         {relatedProducts.length > 0 && (
           <div className="mt-16">
             <h2 className="text-2xl font-bold mb-6 text-center">
-              você também pode gostar
+              Você também pode gostar
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {relatedProducts.map((p) => (

@@ -1,18 +1,12 @@
 // src/pages/HomePage.jsx
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-
-// Componentes Principais
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import FaqItem from '../components/FaqItem'; // Importamos nosso novo componente
-
-// Ícones
+import FaqItem from '../components/FaqItem';
 import { Cpu, HeartPulse, Sparkles, CheckCircle2 } from 'lucide-react';
 
-// Dados para o FAQ - Em React, é comum separar os dados da apresentação
 const faqData = [
   {
     question: 'Qual o prazo de entrega?',
@@ -44,12 +38,11 @@ const faqData = [
 function HomePage() {
   return (
     <>
-
       <Helmet>
-        <title>beleza em movimento - roupas fitness com tecnologia e estilo</title>
+        <title>Beleza em Movimento - Roupas Fitness com Tecnologia e Estilo</title>
         <meta
           name="description"
-          content="encontre roupas fitness de alta performance. tecnologia, conforto e estilo para seus treinos. tops, leggings, shorts e mais."
+          content="Encontre roupas fitness de alta performance. Tecnologia, conforto e estilo para seus treinos. Tops, leggings, shorts e mais."
         />
       </Helmet>
       <Header />
@@ -61,7 +54,7 @@ function HomePage() {
             data-aos="fade-down"
             className="text-4xl md:text-7xl font-black uppercase text-shadow"
           >
-            Conforto que te acompanha a cada movimento
+            Conforto que te Acompanha a Cada Movimento
           </h1>
           <p
             data-aos="fade-up"
@@ -75,7 +68,7 @@ function HomePage() {
             to="/loja"
             data-aos="zoom-in"
             data-aos-delay="400"
-            className="mt-8 px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-lg transition-transform transform hover:scale-105"
+            className="mt-8 px-8 py-4 bg-brand-purple hover:bg-brand-purple-dark text-white font-bold rounded-lg transition-transform transform hover:scale-105"
           >
             Ir para a Loja
           </Link>
@@ -111,7 +104,7 @@ function HomePage() {
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
                   <h3 className="text-white text-3xl font-bold">
-                    Blusas manga curta
+                    Blusas Manga Curta
                   </h3>
                 </div>
                 <Link to="/loja" className="absolute inset-0" />
@@ -157,7 +150,7 @@ function HomePage() {
               data-aos="fade-up"
             >
               <div className="flex flex-col items-center">
-                <div className="bg-cyan-100 text-cyan-600 rounded-full p-4 mb-4">
+                <div className="bg-brand-purple-light text-brand-purple-dark rounded-full p-4 mb-4">
                   <Cpu className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">Tecnologia Avançada</h3>
@@ -167,7 +160,7 @@ function HomePage() {
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="bg-cyan-100 text-cyan-600 rounded-full p-4 mb-4">
+                <div className="bg-brand-purple-light text-brand-purple-dark rounded-full p-4 mb-4">
                   <HeartPulse className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">
@@ -179,7 +172,7 @@ function HomePage() {
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="bg-cyan-100 text-cyan-600 rounded-full p-4 mb-4">
+                <div className="bg-brand-purple-light text-brand-purple-dark rounded-full p-4 mb-4">
                   <Sparkles className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">
@@ -201,7 +194,7 @@ function HomePage() {
           <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1" data-aos="fade-right">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Feito para durar. Projetado para vencer.
+                Feito para Durar. Projetado para Vencer.
               </h2>
               <p className="mb-4 text-gray-300">
                 Nossa obsessão por qualidade começa na escolha da matéria-prima.
@@ -211,21 +204,21 @@ function HomePage() {
               </p>
               <ul className="space-y-3">
                 <li className="flex items-center">
-                  <CheckCircle2 className="w-5 h-5 mr-2 text-cyan-400" />{' '}
+                  <CheckCircle2 className="w-5 h-5 mr-2 text-brand-purple-light" />
                   Costura reforçada para alta durabilidade.
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle2 className="w-5 h-5 mr-2 text-cyan-400" />{' '}
+                  <CheckCircle2 className="w-5 h-5 mr-2 text-brand-purple-light" />
                   Tratamento antiodor e antibacteriano.
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle2 className="w-5 h-5 mr-2 text-cyan-400" /> Cores
+                  <CheckCircle2 className="w-5 h-5 mr-2 text-brand-purple-light" /> Cores
                   que não desbotam com a lavagem.
                 </li>
               </ul>
               <Link
                 to="/sobre"
-                className="mt-8 inline-block px-6 py-3 border border-cyan-400 text-cyan-400 font-semibold rounded-lg hover:bg-cyan-400 hover:text-gray-900 transition-colors"
+                className="mt-8 inline-block px-6 py-3 border border-brand-purple-light text-brand-purple-light font-semibold rounded-lg hover:bg-brand-purple-light hover:text-gray-900 transition-colors"
               >
                 Saiba Mais
               </Link>
@@ -246,7 +239,7 @@ function HomePage() {
               data-aos="fade-up"
               className="text-3xl md:text-4xl font-bold mb-2"
             >
-              O que nossos clientes dizem
+              O Que Nossos Clientes Dizem
             </h2>
             <p
               data-aos="fade-up"
@@ -329,7 +322,7 @@ function HomePage() {
               data-aos="fade-up"
               className="text-3xl md:text-4xl font-bold mb-2"
             >
-              Junte-se à nossa comunidade
+              Junte-se à Nossa Comunidade
             </h2>
             <p
               data-aos="fade-up"
@@ -341,7 +334,7 @@ function HomePage() {
                 href="https://www.instagram.com/belezaemov/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-cyan-600 font-semibold"
+                className="text-brand-purple font-semibold"
               >
                 @belezaemov
               </a>{' '}
@@ -367,18 +360,18 @@ function HomePage() {
                   </p>
                 </div>
               </a>
-              {/* ... Adicione os outros 3 links do instagram aqui ... */}
+              {/* Adicione os outros 3 links do instagram aqui */}
             </div>
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-cyan-500 text-white">
+        <section className="py-16 md:py-24 bg-brand-purple text-white">
           <div className="container mx-auto px-4 text-center">
             <h2
               data-aos="fade-up"
               className="text-3xl md:text-4xl font-bold mb-2"
             >
-              Faça parte do clube!
+              Faça Parte do Clube!
             </h2>
             <p
               data-aos="fade-up"
@@ -399,33 +392,33 @@ function HomePage() {
                 <input
                   type="text"
                   placeholder="Nome"
-                  className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                  className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
                   required
                 />
                 <input
                   type="text"
                   placeholder="Sobrenome"
-                  className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                  className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
                   required
                 />
               </div>
               <input
                 type="email"
                 placeholder="Digite seu melhor e-mail"
-                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
                 required
               />
               <input
                 type="tel"
                 placeholder="Telefone (WhatsApp)"
-                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
                 required
               />
               <button
                 type="submit"
                 className="w-full px-8 py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-lg transition-colors"
               >
-                Quero meu desconto!
+                Quero Meu Desconto!
               </button>
             </form>
           </div>
@@ -437,7 +430,6 @@ function HomePage() {
               Perguntas Frequentes
             </h2>
             <div className="space-y-4">
-              {/* Mapeamos os dados do FAQ para criar cada item dinamicamente */}
               {faqData.map((faq, index) => (
                 <FaqItem
                   key={index}

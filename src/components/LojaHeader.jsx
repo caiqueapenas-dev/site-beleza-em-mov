@@ -9,7 +9,6 @@ function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30">
-      {/* banner de promoção dinâmico */}
       {promoBanner && promoBanner.isActive && (
         <div
           style={{
@@ -21,22 +20,17 @@ function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
           <p>{promoBanner.text}</p>
         </div>
       )}
-      {/* container principal para o cabeçalho */}
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">
-          <Link
-            to="/loja"
-            className="text-3xl font-bold tracking-tighter text-cyan-600"
-          >
-            bem
+          <Link to="/loja" className="text-3xl font-bold tracking-tighter">
+            <img src="/logo-bem.png" alt="Beleza em Movimento Logo" className="h-10 w-auto" />
           </Link>
 
-          {/* barra de pesquisa */}
           <div className="relative flex-1 mx-4 md:mx-8 max-w-lg">
             <input
               type="text"
-              placeholder="o que você procura hoje?"
-              className="w-full bg-gray-100 border border-gray-200 rounded-full py-2 pl-5 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              placeholder="O que você procura hoje?"
+              className="w-full bg-gray-100 border border-gray-200 rounded-full py-2 pl-5 pr-10 focus:outline-none focus:ring-2 focus:ring-brand-purple-dark"
               value={searchTerm}
               onChange={onSearchChange}
             />
@@ -45,13 +39,12 @@ function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
             </div>
           </div>
 
-          {/* ícone do carrinho */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setIsCartOpen(true)}
               id="cart-button"
-              className="relative hover:text-cyan-600 transition-colors"
-              aria-label={`abrir carrinho com ${totalItemsInCart} itens`}
+              className="relative hover:text-brand-purple transition-colors"
+              aria-label={`Abrir carrinho com ${totalItemsInCart} itens`}
             >
               <ShoppingCart />
               {totalItemsInCart > 0 && (

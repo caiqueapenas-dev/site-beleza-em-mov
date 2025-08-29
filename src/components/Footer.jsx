@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Facebook, Youtube } from 'lucide-react';
 
-// This is the function that defines your component
 function Footer() {
   return (
     <footer id="contact" className="bg-gray-900 text-white pt-16 pb-8">
@@ -23,7 +22,6 @@ function Footer() {
                   Sobre Nós
                 </Link>
               </li>
-              {/* Adicione outras páginas institucionais aqui se precisar */}
             </ul>
           </div>
           <div>
@@ -57,20 +55,13 @@ function Footer() {
               >
                 <Instagram />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                <Facebook />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                <Youtube />
-              </a>
             </div>
           </div>
         </div>
         <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
           <p>&copy; 2025 Beleza em Movimento. Todos os direitos reservados.</p>
           <p>
-            Beleza em Movimento Comércio de Artigos Esportivos LTDA - CNPJ
-            XX.XXX.XXX/0001-XX
+            Beleza em Movimento Comércio de Artigos Esportivos
           </p>
         </div>
       </div>
@@ -78,6 +69,4 @@ function Footer() {
   );
 }
 
-// ✅ This is the essential line that was likely missing.
-// It makes the 'Footer' function available for other files to import.
 export default Footer;

@@ -1,6 +1,6 @@
 // src/pages/SobrePage.jsx
 import React from 'react';
-import LojaHeader from '../components/LojaHeader'; // Usamos o header da loja para ter um padrão
+import LojaHeader from '../components/LojaHeader';
 import Footer from '../components/Footer';
 
 function SobrePage() {
@@ -11,7 +11,6 @@ function SobrePage() {
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold mb-6 text-gray-900">Sobre Nós</h1>
-          {/* A classe 'prose' do Tailwind formata o texto de forma agradável */}
           <div className="prose lg:prose-xl text-gray-700 space-y-4">
             <p>
               A Beleza em Movimento nasceu da paixão pelo esporte e pela crença
