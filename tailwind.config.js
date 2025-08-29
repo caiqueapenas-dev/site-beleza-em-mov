@@ -5,10 +5,10 @@ export default {
     extend: {
       colors: {
         'brand-purple': {
-  light: '#C084FC',   // Roxo claro/lilás vibrante
-  DEFAULT: '#9333EA', // Roxo principal forte e charmoso
-  dark: '#6B21A8',    // Roxo profundo elegante
-},
+          light: '#b799b8',
+          DEFAULT: '#8a638b',
+          dark: '#79557a',
+        },
       },
     },
   },
