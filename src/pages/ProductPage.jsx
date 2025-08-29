@@ -18,7 +18,7 @@ function ProductPage() {
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [sizeError, setSizeError] = useState('');
+  const [stockMessage, setStockMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -51,14 +51,22 @@ function ProductPage() {
 
   const handleSelectSize = (size) => {
     setSelectedSize(size);
-    setSizeError('');
+    setStockMessage('');
   };
 
   const handleAddToCartClick = () => {
     if (!selectedSize) {
-      setSizeError('Por favor, selecione um tamanho.');
+      setStockMessage('Por favor, selecione um tamanho.');
       return;
     }
+    
+    const stockLimit = product.estoque[selectedSize] || 0;
+    if (stockLimit === 0) {
+      setStockMessage(`Tamanho ${selectedSize.toUpperCase()} está esgotado.`);
+      return;
+    }
+    
+    setStockMessage('');
     if (product) {
       addToCart(product, selectedSize);
     }
@@ -192,8 +200,8 @@ function ProductPage() {
                   );
                 })}
               </div>
-              {sizeError && (
-                <p className="text-red-500 text-sm mt-2">{sizeError}</p>
+              {stockMessage && (
+                <p className="text-red-500 text-sm mt-2">{stockMessage}</p>
               )}
             </div>
 

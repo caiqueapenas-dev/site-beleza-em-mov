@@ -42,7 +42,7 @@ export function CartProvider({ children }) {
       if (itemExists) {
         if (itemExists.quantity >= stockLimit) {
           showNotification(
-            `Desculpe, temos apenas ${stockLimit} unidades do tamanho ${size.toUpperCase()} em estoque.`,
+            `Limite de estoque atingido! Temos apenas ${stockLimit} unidades do tamanho ${size.toUpperCase()} disponíveis.`,
             'error',
           );
           return prev;
@@ -57,7 +57,7 @@ export function CartProvider({ children }) {
 
       if (stockLimit < 1) {
         showNotification(
-          `Desculpe, o tamanho ${size.toUpperCase()} está esgotado.`,
+          `Tamanho ${size.toUpperCase()} está esgotado no momento.`,
           'error',
         );
         return prev;

@@ -30,6 +30,7 @@ function ProductModal({
   const [customSize, setCustomSize] = useState('');
   const [isCustomRequestVisible, setIsCustomRequestVisible] = useState(false);
   const [requesterInfo, setRequesterInfo] = useState({ name: '', phone: '' });
+  const [stockMessage, setStockMessage] = useState('');
 
   // efeito para resetar o estado sempre que um novo produto for aberto
   useEffect(() => {
@@ -37,6 +38,7 @@ function ProductModal({
     setIsCustomRequestVisible(false);
     setCustomSize('');
     setRequesterInfo({ name: '', phone: '' });
+    setStockMessage('');
   }, [product]);
 
   // se nenhum produto estiver selecionado, não renderize o modal
@@ -52,9 +54,26 @@ function ProductModal({
 
   // função para o botão principal de adicionar ao carrinho
   const handleAddToCartClick = () => {
+    if (!selectedSize) {
+      setStockMessage('Por favor, selecione um tamanho.');
+      return;
+    }
+    
+    const stockLimit = product.estoque[selectedSize] || 0;
+    if (stockLimit === 0) {
+      setStockMessage(`Tamanho ${selectedSize.toUpperCase()} está esgotado.`);
+      return;
+    }
+    
+    setStockMessage('');
     if (selectedSize) {
       onAddToCart(product, selectedSize);
     }
+  };
+
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+    setStockMessage('');
   };
 
   return (
@@ -140,7 +159,7 @@ function ProductModal({
                     return isInStock ? (
                       <button
                         key={size}
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => handleSizeSelect(size)}
                         className={`border rounded-md w-14 h-12 transition-colors ${
                           selectedSize === size
                             ? 'bg-gray-900 text-white border-gray-900'
@@ -156,8 +175,12 @@ function ProductModal({
                         title="produto esgotado"
                       >
                         <button
-                          disabled
-                          className="border rounded-md w-14 h-12 bg-gray-100 text-gray-400 cursor-not-allowed"
+                          onClick={() => handleSizeSelect(size)}
+                          className={`border rounded-md w-14 h-12 transition-colors ${
+                            selectedSize === size
+                              ? 'bg-gray-900 text-white border-gray-900'
+                              : 'bg-gray-100 text-gray-400 border-gray-300'
+                          }`}
                         >
                           {size.toUpperCase()}
                         </button>
@@ -166,6 +189,9 @@ function ProductModal({
                     );
                   })}
               </div>
+              {stockMessage && (
+                <p className="text-red-500 text-sm mt-2">{stockMessage}</p>
+              )}
             </div>
 
             {/* seção de descrição */}
@@ -210,8 +236,7 @@ function ProductModal({
           <div className="mt-auto pt-6">
             <button
               onClick={handleAddToCartClick}
-              disabled={!selectedSize}
-              className="w-full bg-cyan-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-cyan-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-cyan-700 transition-colors"
             >
               adicionar ao carrinho
             </button>
