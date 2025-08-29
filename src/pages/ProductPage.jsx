@@ -18,7 +18,7 @@ function ProductPage() {
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [sizeError, setSizeError] = useState(''); // Estado para a mensagem de erro do tamanho
+  const [sizeError, setSizeError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ function ProductPage() {
 
   const handleSelectSize = (size) => {
     setSelectedSize(size);
-    setSizeError(''); // Limpa o erro ao selecionar um tamanho
+    setSizeError('');
   };
 
   const handleAddToCartClick = () => {
@@ -134,87 +134,83 @@ function ProductPage() {
             </Carousel>
           </div>
 
-          <div className="flex flex-col">
-            {/* O conteúdo principal fica em um div que pode crescer */}
-            <div className="flex-grow">
-              <h1 className="text-3xl lg:text-4xl font-bold">{product.name}</h1>
-              <div className="my-4">
-                <div className="flex items-baseline gap-3">
-                  <p className="text-4xl font-light text-gray-800">
+          <div className="flex flex-col space-y-6">
+            <h1 className="text-3xl lg:text-4xl font-bold">{product.name}</h1>
+            <div>
+              <div className="flex items-baseline gap-3">
+                <p className="text-4xl font-light text-gray-800">
+                  {new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(currentPrice)}
+                </p>
+                {hasDiscount && (
+                  <p className="text-2xl font-light text-gray-400 line-through">
                     {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
-                    }).format(currentPrice)}
+                    }).format(product.price)}
                   </p>
-                  {hasDiscount && (
-                    <p className="text-2xl font-light text-gray-400 line-through">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      }).format(product.price)}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold mb-2">
-                  Selecione o Tamanho
-                </h3>
-                <div className="flex flex-wrap gap-3">
-                  {allSizes.map((size) => {
-                    const isInStock =
-                      product.estoque && product.estoque[size] > 0;
-                    return isInStock ? (
-                      <button
-                        key={size}
-                        onClick={() => handleSelectSize(size)}
-                        className={`border rounded-md w-14 h-12 transition-colors ${
-                          selectedSize === size
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'border-gray-300 hover:bg-gray-100'
-                        }`}
-                      >
-                        {size.toUpperCase()}
-                      </button>
-                    ) : (
-                      <div
-                        key={size}
-                        className="relative"
-                        title="Produto esgotado"
-                      >
-                        <button
-                          disabled
-                          className="border rounded-md w-14 h-12 bg-gray-100 text-gray-400 cursor-not-allowed"
-                        >
-                          {size.toUpperCase()}
-                        </button>
-                        <div className="absolute top-1/2 left-0 w-full h-px bg-gray-400 transform -rotate-12"></div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {sizeError && (
-                  <p className="text-red-500 text-sm mt-2">{sizeError}</p>
                 )}
-              </div>
-
-              <div className="mt-8">
-                <h3 className="font-semibold mb-2">Descrição</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {product.description}
-                </p>
               </div>
             </div>
 
-            {/* O botão fica em um contêiner separado para fixar na parte inferior */}
-            <div className="mt-auto pt-6">
+            <div>
+              <h3 className="text-sm font-semibold mb-2">
+                Selecione o Tamanho
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {allSizes.map((size) => {
+                  const isInStock =
+                    product.estoque && product.estoque[size] > 0;
+                  return isInStock ? (
+                    <button
+                      key={size}
+                      onClick={() => handleSelectSize(size)}
+                      className={`border rounded-md w-14 h-12 transition-colors ${
+                        selectedSize === size
+                          ? 'bg-gray-900 text-white border-gray-900'
+                          : 'border-gray-300 hover:bg-gray-100'
+                      }`}
+                    >
+                      {size.toUpperCase()}
+                    </button>
+                  ) : (
+                    <div
+                      key={size}
+                      className="relative"
+                      title="Produto esgotado"
+                    >
+                      <button
+                        disabled
+                        className="border rounded-md w-14 h-12 bg-gray-100 text-gray-400 cursor-not-allowed"
+                      >
+                        {size.toUpperCase()}
+                      </button>
+                      <div className="absolute top-1/2 left-0 w-full h-px bg-gray-400 transform -rotate-12"></div>
+                    </div>
+                  );
+                })}
+              </div>
+              {sizeError && (
+                <p className="text-red-500 text-sm mt-2">{sizeError}</p>
+              )}
+            </div>
+
+            <div>
               <button
                 onClick={handleAddToCartClick}
                 className="w-full bg-brand-purple text-white py-4 rounded-lg font-bold text-lg hover:bg-brand-purple-dark transition-colors"
               >
                 Adicionar ao Carrinho
               </button>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Descrição</h3>
+              <p className="text-gray-600 leading-relaxed">
+                {product.description}
+              </p>
             </div>
           </div>
         </div>
