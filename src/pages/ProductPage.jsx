@@ -208,7 +208,7 @@ function ProductPage() {
             <div>
               <button
                 onClick={handleAddToCartClick}
-                className="w-full bg-brand-purple py-4 rounded-lg font-bold text-lg hover:bg-brand-purple-dark transition-colors"
+className="w-full bg-gradient-to-r from-brand-purple to-purple-700 py-4 rounded-xl font-semibold text-lg text-white shadow-md hover:from-purple-700 hover:to-brand-purple transition-all duration-300"
               >
                 Adicionar ao Carrinho
               </button>
