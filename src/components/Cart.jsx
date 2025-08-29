@@ -122,7 +122,7 @@ function Cart() {
             <button
               onClick={handleCheckout}
               disabled={cartItems.length === 0}
-              className="w-full bg-brand-purple text-white py-3 rounded-lg font-bold hover:bg-brand-purple-dark disabled:bg-gray-400"
+className="w-full bg-gradient-to-r from-brand-purple to-purple-700 py-4 rounded-xl font-semibold text-lg text-white shadow-md hover:from-purple-700 hover:to-brand-purple transition-all duration-300"
             >
               Finalizar Pedido
             </button>
