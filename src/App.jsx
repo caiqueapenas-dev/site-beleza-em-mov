@@ -9,7 +9,7 @@ import {
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-// páginas
+// Páginas
 import HomePage from './pages/HomePage';
 import LojaPage from './pages/LojaPage';
 import SobrePage from './pages/SobrePage';
@@ -18,16 +18,18 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import CheckoutPage from './pages/CheckoutPage';
 import ProductPage from './pages/ProductPage';
 
-// componentes e contexto
+// Componentes e Contexto
 import ProtectedRoute from './components/ProtectedRoute';
-import { CartProvider } from './context/CartContext';
-import Cart from './components/Cart'; // importamos o carrinho aqui
+import { CartProvider, useCart } from './context/CartContext';
+import Cart from './components/Cart';
+import Notification from './components/Notification'; // Importa a notificação
 
-// componente interno para usar o hook useLocation
+// Componente interno para usar o hook useLocation e o contexto do carrinho
 function AppLayout() {
   const { pathname } = useLocation();
+  const { notification } = useCart(); // Pega o estado da notificação do contexto
 
-  // efeito para rolar para o topo da página a cada mudança de rota
+  // Efeito para rolar para o topo da página a cada mudança de rota
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -35,7 +37,7 @@ function AppLayout() {
   return (
     <>
       <Routes>
-        {/* rotas públicas */}
+        {/* Rotas públicas */}
         <Route path="/" element={<HomePage />} />
         <Route path="/loja" element={<LojaPage />} />
         <Route path="/sobre" element={<SobrePage />} />
@@ -43,7 +45,7 @@ function AppLayout() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/produto/:id" element={<ProductPage />} />
 
-        {/* rota protegida */}
+        {/* Rota protegida */}
         <Route
           path="/admin/dashboard"
           element={
@@ -53,13 +55,19 @@ function AppLayout() {
           }
         />
       </Routes>
-      <Cart /> {/* renderizamos o carrinho aqui para ser global */}
+      <Cart />
+      {/* Renderiza a notificação globalmente */}
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        visible={notification.visible}
+      />
     </>
   );
 }
 
 function App() {
-  // efeito para inicializar a biblioteca de animações
+  // Efeito para inicializar a biblioteca de animações
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -68,7 +76,6 @@ function App() {
   }, []);
 
   return (
-    // o router e o cartprovider envolvem toda a aplicação
     <Router>
       <CartProvider>
         <AppLayout />

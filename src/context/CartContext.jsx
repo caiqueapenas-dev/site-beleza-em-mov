@@ -14,12 +14,25 @@ export function CartProvider({ children }) {
     }
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [notification, setNotification] = useState({
+    message: '',
+    type: 'success',
+    visible: false,
+  });
 
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product, size, showNotification) => {
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type, visible: true });
+    setTimeout(
+      () => setNotification({ message: '', type, visible: false }),
+      3000,
+    );
+  };
+
+  const addToCart = (product, size) => {
     setCartItems((prev) => {
       const itemExists = prev.find(
         (item) => item._id === product._id && item.size === size,
@@ -41,9 +54,12 @@ export function CartProvider({ children }) {
             : item,
         );
       }
-      
+
       if (stockLimit < 1) {
-        showNotification(`Desculpe, o tamanho ${size.toUpperCase()} está esgotado.`, 'error');
+        showNotification(
+          `Desculpe, o tamanho ${size.toUpperCase()} está esgotado.`,
+          'error',
+        );
         return prev;
       }
 
@@ -59,8 +75,9 @@ export function CartProvider({ children }) {
         if (item._id === itemId && item.size === itemSize) {
           const stockLimit = item.estoque[itemSize] || 0;
           if (item.quantity >= stockLimit) {
-            alert(
-              `Limite de estoque atingido para o tamanho ${itemSize.toUpperCase()} (${stockLimit} unidades).`,
+            showNotification(
+              `Limite de estoque para o tamanho ${itemSize.toUpperCase()} (${stockLimit} unidades).`,
+              'error',
             );
             return item;
           }
@@ -101,6 +118,8 @@ export function CartProvider({ children }) {
     decreaseQuantity,
     removeFromCart,
     totalItemsInCart,
+    notification, // Exporta o estado da notificação
+    showNotification, // Exporta a função de notificação
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

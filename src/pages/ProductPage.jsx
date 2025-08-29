@@ -10,7 +10,6 @@ import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
 import { useCart } from '../context/CartContext';
-import Notification from '../components/Notification';
 
 function ProductPage() {
   const { id } = useParams();
@@ -19,11 +18,8 @@ function ProductPage() {
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [sizeError, setSizeError] = useState(''); // Estado para a mensagem de erro do tamanho
   const [isLoading, setIsLoading] = useState(true);
-  const [notification, setNotification] = useState({
-    message: '',
-    visible: false,
-  });
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -53,17 +49,18 @@ function ProductPage() {
     window.scrollTo(0, 0);
   }, [id]);
 
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type, visible: true });
-    setTimeout(
-      () => setNotification({ message: '', type, visible: false }),
-      3000,
-    );
+  const handleSelectSize = (size) => {
+    setSelectedSize(size);
+    setSizeError(''); // Limpa o erro ao selecionar um tamanho
   };
 
   const handleAddToCartClick = () => {
-    if (selectedSize && product) {
-      addToCart(product, selectedSize, showNotification);
+    if (!selectedSize) {
+      setSizeError('Por favor, selecione um tamanho.');
+      return;
+    }
+    if (product) {
+      addToCart(product, selectedSize);
     }
   };
 
@@ -138,6 +135,7 @@ function ProductPage() {
           </div>
 
           <div className="flex flex-col">
+            {/* O conteúdo principal fica em um div que pode crescer */}
             <div className="flex-grow">
               <h1 className="text-3xl lg:text-4xl font-bold">{product.name}</h1>
               <div className="my-4">
@@ -170,7 +168,7 @@ function ProductPage() {
                     return isInStock ? (
                       <button
                         key={size}
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => handleSelectSize(size)}
                         className={`border rounded-md w-14 h-12 transition-colors ${
                           selectedSize === size
                             ? 'bg-gray-900 text-white border-gray-900'
@@ -196,6 +194,9 @@ function ProductPage() {
                     );
                   })}
                 </div>
+                {sizeError && (
+                  <p className="text-red-500 text-sm mt-2">{sizeError}</p>
+                )}
               </div>
 
               <div className="mt-8">
@@ -206,11 +207,11 @@ function ProductPage() {
               </div>
             </div>
 
+            {/* O botão fica em um contêiner separado para fixar na parte inferior */}
             <div className="mt-auto pt-6">
               <button
                 onClick={handleAddToCartClick}
-                disabled={!selectedSize}
-                className="w-full bg-brand-purple text-white py-4 rounded-lg font-bold text-lg hover:bg-brand-purple-dark disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-brand-purple text-white py-4 rounded-lg font-bold text-lg hover:bg-brand-purple-dark transition-colors"
               >
                 Adicionar ao Carrinho
               </button>
@@ -233,11 +234,6 @@ function ProductPage() {
       </main>
 
       <Footer />
-      <Notification
-        message={notification.message}
-        type={notification.type}
-        visible={notification.visible}
-      />
     </>
   );
 }
