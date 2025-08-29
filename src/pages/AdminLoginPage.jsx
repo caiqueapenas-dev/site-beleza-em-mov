@@ -1,38 +1,42 @@
 // src/pages/AdminLoginPage.jsx
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 function AdminLoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
 
-    const isLoggedIn = await login(email, password);
+    const isLoggedIn = await login(email, password)
 
-    setIsLoading(false);
+    setIsLoading(false)
 
     if (isLoggedIn) {
-      navigate('/admin/dashboard');
+      navigate('/admin/dashboard')
     } else {
-      setError('Email ou senha inválidos.');
+      setError('Email ou senha inválidos.')
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <img src="/logo-bem.png" alt="Beleza em Movimento Logo" className="h-16 w-auto mx-auto mb-4" />
+          <img
+            src="https://res.cloudinary.com/dnescubo4/image/upload/v1756503535/538968010_17882407869363451_6804061717713560360_n_bzkryc.jpg"
+            alt="Beleza em Movimento Logo"
+            className="h-16 w-auto mx-auto mb-4"
+          />
           <h2 className="mt-2 text-2xl font-bold text-gray-900">
             Acesso Restrito
           </h2>
@@ -83,7 +87,7 @@ function AdminLoginPage() {
         </form>
       </div>
     </div>
-  );
+  )
 }
 
-export default AdminLoginPage;
+export default AdminLoginPage

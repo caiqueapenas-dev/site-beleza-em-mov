@@ -1,7 +1,7 @@
 // src/components/ProductCard.jsx
-import React from 'react';
-import { Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React from 'react'
+import { Star } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const StarRating = ({ rating }) => {
   const stars = Array.from({ length: 5 }, (_, i) => (
@@ -11,34 +11,32 @@ const StarRating = ({ rating }) => {
         i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
       }`}
     />
-  ));
-  return <div className="flex">{stars}</div>;
-};
+  ))
+  return <div className="flex">{stars}</div>
+}
 
 function ProductCard({ product }) {
-  // checagem mais robusta para desconto
   const hasDiscount =
-    product.desconto_percentual != null && product.desconto_percentual > 0;
+    product.desconto_percentual != null && product.desconto_percentual > 0
 
   const finalPrice = hasDiscount
     ? product.price * (1 - product.desconto_percentual / 100)
-    : product.price;
+    : product.price
 
   const originalPriceFormatted = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(product.price);
+  }).format(product.price)
 
   const finalPriceFormatted = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format(finalPrice);
+  }).format(finalPrice)
 
-  // usa a primeira imagem do array 'images' como capa
   const coverImage =
     product.images && product.images.length > 0
       ? product.images[0]
-      : 'https://via.placeholder.com/400x500.png?text=sem+imagem';
+      : 'https://via.placeholder.com/400x500.png?text=sem+imagem'
 
   return (
     <Link
@@ -74,11 +72,8 @@ function ProductCard({ product }) {
           )}
         </div>
       </div>
-      <button className="w-full mt-4 bg-gray-800 text-white py-2 rounded-lg font-semibold transition-opacity duration-300 opacity-0 group-hover:opacity-100">
-        ver opções
-      </button>
     </Link>
-  );
+  )
 }
 
-export default ProductCard;
+export default ProductCard

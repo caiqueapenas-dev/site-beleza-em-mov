@@ -1,11 +1,11 @@
 // src/components/LojaHeader.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Search, ShoppingCart } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Search, ShoppingCart } from 'lucide-react'
+import { useCart } from '../context/CartContext'
 
 function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
-  const { totalItemsInCart, setIsCartOpen } = useCart();
+  const { totalItemsInCart, setIsCartOpen } = useCart()
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30">
@@ -23,7 +23,11 @@ function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">
           <Link to="/loja" className="text-3xl font-bold tracking-tighter">
-            <img src="/logo-bem.png" alt="Beleza em Movimento Logo" className="h-10 w-auto" />
+            <img
+              src="https://res.cloudinary.com/dnescubo4/image/upload/v1756503535/538968010_17882407869363451_6804061717713560360_n_bzkryc.jpg"
+              alt="Beleza em Movimento Logo"
+              className="h-10 w-auto"
+            />
           </Link>
 
           <div className="relative flex-1 mx-4 md:mx-8 max-w-lg">
@@ -57,7 +61,7 @@ function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
         </div>
       </div>
     </header>
-  );
+  )
 }
 
-export default LojaHeader;
+export default LojaHeader
