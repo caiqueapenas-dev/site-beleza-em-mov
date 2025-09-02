@@ -39,7 +39,9 @@ function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Beleza em Movimento - Roupas Fitness com Tecnologia e Estilo</title>
+        <title>
+          Beleza em Movimento - Roupas Fitness com Tecnologia e Estilo
+        </title>
         <meta
           name="description"
           content="Encontre roupas fitness de alta performance. Tecnologia, conforto e estilo para seus treinos. Tops, leggings, shorts e mais."
@@ -47,19 +49,18 @@ function HomePage() {
       </Helmet>
       <Header />
 
-      <div className="relative hero-bg text-white">
-        <div className="absolute inset-0 bg-black bg-opacity-50" />
+      <div className="relative bg-white text-black">
         <div className="relative z-0 flex flex-col items-center justify-center h-screen min-h-[500px] text-center p-4">
           <h1
             data-aos="fade-down"
-            className="text-4xl md:text-7xl font-black uppercase text-shadow"
+            className="text-4xl md:text-7xl font-black uppercase"
           >
             Conforto que te Acompanha a Cada Movimento
           </h1>
           <p
             data-aos="fade-up"
             data-aos-delay="200"
-            className="mt-4 max-w-2xl text-lg md:text-2xl text-shadow"
+            className="mt-4 max-w-2xl text-lg md:text-2xl text-gray-700"
           >
             Roupas fitness projetadas com tecnologia de ponta para você superar
             qualquer desafio com estilo.
@@ -212,8 +213,8 @@ function HomePage() {
                   Tratamento antiodor e antibacteriano.
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle2 className="w-5 h-5 mr-2 text-brand-purple-light" /> Cores
-                  que não desbotam com a lavagem.
+                  <CheckCircle2 className="w-5 h-5 mr-2 text-brand-purple-light" />{' '}
+                  Cores que não desbotam com a lavagem.
                 </li>
               </ul>
               <Link
@@ -248,179 +249,36 @@ function HomePage() {
             >
               A maior prova de qualidade é a satisfação de quem usa.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              <div
-                data-aos="fade-up"
-                data-aos-delay="200"
-                className="bg-white p-8 rounded-lg shadow-md"
-              >
-                <p className="text-gray-600 mb-4">
-                  "A melhor legging que já usei! Não fica transparente e o
-                  conforto é surreal. Já quero uma de cada cor."
-                </p>
-                <div className="flex items-center">
-                  <img
-                    src="https://i.pravatar.cc/150?img=1"
-                    alt="Cliente Joana"
-                    className="w-12 h-12 rounded-full mr-4 object-cover"
-                  />
-                  <div>
-                    <p className="font-bold">Joana F.</p>
-                    <p className="text-sm text-gray-500">Atleta Amadora</p>
-                  </div>
-                </div>
-              </div>
-              <div
-                data-aos="fade-up"
-                data-aos-delay="300"
-                className="bg-white p-8 rounded-lg shadow-md"
-              >
-                <p className="text-gray-600 mb-4">
-                  "As camisetas dry-fit são perfeitas para os treinos mais
-                  intensos. Secam muito rápido e não pesam no corpo."
-                </p>
-                <div className="flex items-center">
-                  <img
-                    src="https://i.pravatar.cc/150?img=68"
-                    alt="Cliente Marcos"
-                    className="w-12 h-12 rounded-full mr-4 object-cover"
-                  />
-                  <div>
-                    <p className="font-bold">Marcos P.</p>
-                    <p className="text-sm text-gray-500">Personal Trainer</p>
-                  </div>
-                </div>
-              </div>
-              <div
-                data-aos="fade-up"
-                data-aos-delay="400"
-                className="bg-white p-8 rounded-lg shadow-md"
-              >
-                <p className="text-gray-600 mb-4">
-                  "Qualidade e estilo que impressionam. Uso as roupas da Beleza
-                  em Movimento tanto na academia quanto no dia a dia."
-                </p>
-                <div className="flex items-center">
-                  <img
-                    src="https://i.pravatar.cc/150?img=32"
-                    alt="Cliente Carla"
-                    className="w-12 h-12 rounded-full mr-4 object-cover"
-                  />
-                  <div>
-                    <p className="font-bold">Carla S.</p>
-                    <p className="text-sm text-gray-500">Entusiasta Fitness</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2
-              data-aos="fade-up"
-              className="text-3xl md:text-4xl font-bold mb-2"
-            >
-              Junte-se à Nossa Comunidade
-            </h2>
-            <p
-              data-aos="fade-up"
-              data-aos-delay="100"
-              className="text-gray-600 mb-12"
-            >
-              Siga{' '}
-              <a
-                href="https://www.instagram.com/belezaemov/"
-                target="_blank"
-                rel="noreferrer"
-                className="text-brand-purple font-semibold"
-              >
-                @belezaemov
-              </a>{' '}
-              e use a hashtag #UseBmov
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <a
-                href="https://www.instagram.com/belezaemov/"
-                target="_blank"
-                rel="noreferrer"
-                className="group relative block"
-                data-aos="zoom-in"
-                data-aos-delay="200"
-              >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              <div data-aos="fade-up" data-aos-delay="200">
                 <img
-                  src="https://i.postimg.cc/Vk2jD4NZ/Captura-de-tela-2025-07-14-155829.png"
-                  alt="Post do Instagram 1"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-lg opacity-100 group-hover:bg-opacity-20 transition-all duration-300">
-                  <p className="text-white text-2xl font-bold opacity-75 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
-                    @belezaemov
-                  </p>
-                </div>
-              </a>
-              {/* Adicione os outros 3 links do instagram aqui */}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 md:py-24 bg-brand-purple text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2
-              data-aos="fade-up"
-              className="text-3xl md:text-4xl font-bold mb-2"
-            >
-              Faça Parte do Clube!
-            </h2>
-            <p
-              data-aos="fade-up"
-              data-aos-delay="100"
-              className="mb-8 max-w-2xl mx-auto"
-            >
-              Cadastre-se e ganhe{' '}
-              <span className="font-extrabold">15% de desconto</span> na sua
-              primeira compra, além de acesso exclusivo a lançamentos e
-              promoções.
-            </p>
-            <form
-              data-aos="fade-up"
-              data-aos-delay="200"
-              className="flex flex-col gap-4 max-w-2xl mx-auto"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="Nome"
-                  className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Sobrenome"
-                  className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
-                  required
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756851833/e4bc087d-6148-4a69-94bd-e0cf6d1f8916_aigmjt.jpg"
+                  alt="Depoimento de cliente 1"
+                  className="rounded-lg shadow-md w-full"
                 />
               </div>
-              <input
-                type="email"
-                placeholder="Digite seu melhor e-mail"
-                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
-                required
-              />
-              <input
-                type="tel"
-                placeholder="Telefone (WhatsApp)"
-                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-purple-light"
-                required
-              />
-              <button
-                type="submit"
-                className="w-full px-8 py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-lg transition-colors"
-              >
-                Quero Meu Desconto!
-              </button>
-            </form>
+              <div data-aos="fade-up" data-aos-delay="300">
+                <img
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756851832/2474cf66-f88e-4666-a6a9-279456f07ba3_znsmbi.jpg"
+                  alt="Depoimento de cliente 2"
+                  className="rounded-lg shadow-md w-full"
+                />
+              </div>
+              <div data-aos="fade-up" data-aos-delay="400">
+                <img
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756851833/0c50d9fc-43f4-4063-9e4a-337019a6b319_zo1yko.jpg"
+                  alt="Depoimento de cliente 3"
+                  className="rounded-lg shadow-md w-full"
+                />
+              </div>
+              <div data-aos="fade-up" data-aos-delay="500">
+                <img
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756851832/89cb526c-1d4d-4830-a71d-5a1e888f386b_pl9z9b.jpg"
+                  alt="Depoimento de cliente 4"
+                  className="rounded-lg shadow-md w-full"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
