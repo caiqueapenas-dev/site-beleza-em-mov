@@ -93,31 +93,31 @@ function HomePage() {
               Encontre o look perfeito para cada tipo de treino.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Coleção 1: Conjuntos */}
               <div
                 data-aos="fade-up"
                 data-aos-delay="200"
                 className="group relative overflow-hidden rounded-lg"
               >
                 <img
-                  src="https://i.postimg.cc/PxsQrKsv/Captura-de-tela-2025-07-14-155611.png"
-                  alt="Modelo masculino de roupa fitness"
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756852284/5cf45cb1-ee7c-4f6a-b016-3ae151ec56db_jlxc2i.jpg"
+                  alt="Coleção de Conjuntos Fitness"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 aspect-square"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
-                  <h3 className="text-white text-3xl font-bold">
-                    Blusas Manga Curta
-                  </h3>
+                  <h3 className="text-white text-3xl font-bold">Conjuntos</h3>
                 </div>
                 <Link to="/loja" className="absolute inset-0" />
               </div>
+              {/* Coleção 2: Tops */}
               <div
                 data-aos="fade-up"
                 data-aos-delay="300"
                 className="group relative overflow-hidden rounded-lg"
               >
                 <img
-                  src="https://i.postimg.cc/Znj8HS96/Captura-de-tela-2025-07-14-155619.png"
-                  alt="Modelo feminina de roupa fitness"
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756852284/f2696e67-4563-49bb-9bc2-449061eb0fe7_pesphj.jpg"
+                  alt="Coleção de Tops Fitness"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 aspect-square"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
@@ -125,14 +125,63 @@ function HomePage() {
                 </div>
                 <Link to="/loja" className="absolute inset-0" />
               </div>
+              {/* Coleção 3: Leggings */}
               <div
                 data-aos="fade-up"
                 data-aos-delay="400"
                 className="group relative overflow-hidden rounded-lg"
               >
                 <img
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756852284/c542ab87-4ae2-448a-8e8b-0567eca89611_slcf7p.jpg"
+                  alt="Coleção de Leggings Fitness"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 aspect-square"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
+                  <h3 className="text-white text-3xl font-bold">Leggings</h3>
+                </div>
+                <Link to="/loja" className="absolute inset-0" />
+              </div>
+              {/* Coleção 4: Macacões */}
+              <div
+                data-aos="fade-up"
+                data-aos-delay="500"
+                className="group relative overflow-hidden rounded-lg"
+              >
+                <img
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756852284/5116bc6b-edcc-4e5c-a4b9-4182a2856e97_ddkosf.jpg"
+                  alt="Coleção de Macacões Fitness"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 aspect-square"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
+                  <h3 className="text-white text-3xl font-bold">Macacões</h3>
+                </div>
+                <Link to="/loja" className="absolute inset-0" />
+              </div>
+              {/* Coleção 5: Bermudas */}
+              <div
+                data-aos="fade-up"
+                data-aos-delay="600"
+                className="group relative overflow-hidden rounded-lg"
+              >
+                <img
+                  src="https://res.cloudinary.com/dnescubo4/image/upload/v1756852284/43f6cd1b-3abb-4b0b-a2c0-9a6a1d9b23dd_ehn4wf.jpg"
+                  alt="Coleção de Bermudas Fitness"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 aspect-square"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
+                  <h3 className="text-white text-3xl font-bold">Bermudas</h3>
+                </div>
+                <Link to="/loja" className="absolute inset-0" />
+              </div>
+              {/* Coleção 6: Shorts */}
+              <div
+                data-aos="fade-up"
+                data-aos-delay="700"
+                className="group relative overflow-hidden rounded-lg"
+              >
+                <img
                   src="https://i.postimg.cc/63rL7Rtj/Captura-de-tela-2025-07-14-155644.png"
-                  alt="Acessórios de fitness"
+                  alt="Coleção de Shorts Fitness"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 aspect-square"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">

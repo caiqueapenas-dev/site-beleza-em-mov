@@ -63,7 +63,7 @@ function Header() {
         </nav>
 
         {isMenuOpen && (
-          <div className="md:hidden relative z-10 bg-black bg-opacity-80">
+          <div className="md:hidden relative z-10 bg-white bg-opacity-80">
             <Link
               to="/loja"
               className="block p-4 text-center hover:bg-gray-800"
