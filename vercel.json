@@ -1,5 +1,12 @@
 {
   "version": 2,
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/loja",
+      "permanent": true
+    }
+  ],
   "builds": [
     {
       "src": "api/index.cjs",
