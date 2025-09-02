@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+@import 'tailwindcss'; 
 
 /* Adicione estas classes ao final do seu arquivo src/index.css */
 .loader {
@@ -20,3 +19,5 @@
     transform: rotate(360deg);
   }
 }
+
+@import 'tailwindcss';
