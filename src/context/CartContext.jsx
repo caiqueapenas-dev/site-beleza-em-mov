@@ -64,7 +64,11 @@ export function CartProvider({ children }) {
       }
 
       showNotification(`${product.name} foi adicionado ao carrinho!`);
-      return [...prev, { ...product, size, quantity: 1 }];
+         const finalPrice =
+     product.desconto_percentual && product.desconto_percentual > 0
+       ? product.price * (1 - product.desconto_percentual / 100)
+       : product.price;
+   return [...prev, { ...product, price: finalPrice, size, quantity: 1 }];
     });
     setIsCartOpen(true);
   };
