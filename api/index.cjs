@@ -131,8 +131,7 @@ app.get('/api/produtos/:id', async (req, res) => {
       return res.status(404).json({ message: 'produto não encontrado' });
     }
     res.status(200).json(product);
-  } catch (error)
-{
+  } catch (error) {
     res.status(500).json({
       message: 'erro ao buscar produto',
       error: error.message,
@@ -215,8 +214,7 @@ app.put('/api/produtos/:id', async (req, res) => {
       { _id: new ObjectId(id) },
       { $set: updatedData },
     );
-    if (result.matchedCount === 0)
-{
+    if (result.matchedCount === 0) {
       return res.status(404).json({ message: 'produto não encontrado' });
     }
     res.status(200).json({ ...updatedData, _id: id });
