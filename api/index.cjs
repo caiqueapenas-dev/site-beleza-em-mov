@@ -63,6 +63,10 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/produtos', async (req, res) => {
   // extrai todos os possíveis filtros da query string
   const { q, categoria, tamanho, cor } = req.query;
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 12;
   const skip = (page - 1) * limit;
@@ -140,6 +144,11 @@ app.get('/api/produtos/:id', async (req, res) => {
 app.get('/api/promotions', async (req, res) => {
   try {
     const database = await connectToDatabase();
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+
     const promotionsCollection = database.collection('promotions');
     let settings = await promotionsCollection.findOne({});
 
