@@ -61,7 +61,7 @@ function LojaPage() {
 
     const fetchPromotions = async () => {
       try {
-        const response = await fetch('/api/promotions')
+        const response = await fetch('/api/promotions', { cache: 'no-store' });
         const data = await response.json()
         setPromoSettings(data)
       } catch (error) {
