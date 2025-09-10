@@ -162,6 +162,10 @@ app.get('/api/promotions', async (req, res) => {
       .json({ message: 'erro ao buscar promoções', error: error.message });
   }
 });
+
+res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+res.setHeader('Pragma', 'no-cache');
+res.setHeader('Expires', '0');
 app.post('/api/promotions', async (req, res) => {
   const newSettings = req.body;
   try {
