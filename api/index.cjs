@@ -61,12 +61,13 @@ app.post('/api/login', async (req, res) => {
 });
 // --- rota get (ler produtos) ---
 app.get('/api/produtos', async (req, res) => {
-  // extrai todos os possíveis filtros da query string
-  const { q, categoria, tamanho, cor } = req.query;
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   res.setHeader('Surrogate-Control', 'no-store');
+
+  // extrai todos os possíveis filtros da query string
+  const { q, categoria, tamanho, cor } = req.query;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 12;
   const skip = (page - 1) * limit;
@@ -79,7 +80,7 @@ app.get('/api/produtos', async (req, res) => {
     let query = {};
 
     if (q) {
-      query.$or = [
+     query.$or = [
         { name: { $regex: q, $options: 'i' } },
         { palavras_chave: { $regex: q, $options: 'i' } },
         { description: { $regex: q, $options: 'i' } },
@@ -99,13 +100,11 @@ app.get('/api/produtos', async (req, res) => {
 
     const totalProducts = await productsCollection.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
-
     const products = await productsCollection
       .find(query)
       .skip(skip)
       .limit(limit)
       .toArray();
-
     res.status(200).json({ products, totalPages, currentPage: page });
   } catch (error) {
     res.status(500).json({
@@ -132,23 +131,23 @@ app.get('/api/produtos/:id', async (req, res) => {
       return res.status(404).json({ message: 'produto não encontrado' });
     }
     res.status(200).json(product);
-  } catch (error) {
+  } catch (error)
+{
     res.status(500).json({
       message: 'erro ao buscar produto',
       error: error.message,
     });
   }
 });
-
 // --- rotas para promoções/cupons ---
 app.get('/api/promotions', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+
   try {
     const database = await connectToDatabase();
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.setHeader('Surrogate-Control', 'no-store');
-
     const promotionsCollection = database.collection('promotions');
     let settings = await promotionsCollection.findOne({});
 
@@ -171,10 +170,6 @@ app.get('/api/promotions', async (req, res) => {
       .json({ message: 'erro ao buscar promoções', error: error.message });
   }
 });
-
-res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-res.setHeader('Pragma', 'no-cache');
-res.setHeader('Expires', '0');
 app.post('/api/promotions', async (req, res) => {
   const newSettings = req.body;
   try {
@@ -220,7 +215,8 @@ app.put('/api/produtos/:id', async (req, res) => {
       { _id: new ObjectId(id) },
       { $set: updatedData },
     );
-    if (result.matchedCount === 0) {
+    if (result.matchedCount === 0)
+{
       return res.status(404).json({ message: 'produto não encontrado' });
     }
     res.status(200).json({ ...updatedData, _id: id });
@@ -249,7 +245,7 @@ app.delete('/api/produtos/:id', async (req, res) => {
       return res.status(404).json({ message: 'produto não encontrado' });
     }
 
-    res.status(200).json({ message: 'produto deletado com sucesso' });
+   res.status(200).json({ message: 'produto deletado com sucesso' });
   } catch (error) {
     res.status(500).json({
       message: 'erro ao deletar produto',
