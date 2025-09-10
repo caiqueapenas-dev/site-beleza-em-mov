@@ -94,7 +94,7 @@ function Cart() {
                           {new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',
-                          }).format((item.originalPrice || item.price) * item.quantity)}
+                          }).format((item.originalPrice || (item.price / (1 - item.desconto_percentual / 100))) * item.quantity)}
                         </span>
                       </div>
                     )}

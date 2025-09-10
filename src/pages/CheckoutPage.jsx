@@ -58,7 +58,11 @@ function CheckoutPage() {
 
   // Calcula o total original (sem descontos de produtos)
   const originalSubtotal = cartItems.reduce(
-    (sum, item) => sum + (item.originalPrice || item.price) * item.quantity,
+    (sum, item) => {
+      const hasDiscount = item.desconto_percentual && item.desconto_percentual > 0;
+      const originalPrice = item.originalPrice || (hasDiscount ? item.price / (1 - item.desconto_percentual / 100) : item.price);
+      return sum + originalPrice * item.quantity;
+    },
     0,
   )
 
@@ -105,7 +109,7 @@ function CheckoutPage() {
     const itemsList = cartItems
       .map((item) => {
         const hasDiscount = item.desconto_percentual && item.desconto_percentual > 0;
-        const originalPrice = item.originalPrice || item.price;
+        const originalPrice = item.originalPrice || (hasDiscount ? item.price / (1 - item.desconto_percentual / 100) : item.price);
         const currentPrice = item.price;
         const totalItemPrice = currentPrice * item.quantity;
         const totalOriginalPrice = originalPrice * item.quantity;
@@ -283,7 +287,8 @@ Aguardando contato para finalizar a compra.
           <div className="space-y-4 border-b pb-4">
             {cartItems.map((item) => {
               const hasDiscount = item.desconto_percentual && item.desconto_percentual > 0;
-              const originalPrice = item.originalPrice || item.price;
+              // Se não há originalPrice, calcula o preço original baseado no desconto
+              const originalPrice = item.originalPrice || (hasDiscount ? item.price / (1 - item.desconto_percentual / 100) : item.price);
               const currentPrice = item.price;
               const totalItemPrice = currentPrice * item.quantity;
               const totalOriginalPrice = originalPrice * item.quantity;
