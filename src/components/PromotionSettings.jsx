@@ -1,5 +1,5 @@
 // src/components/PromotionSettings.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trash2 } from 'lucide-react';
 
 function PromotionSettings({ promoSettings, onSave, showNotification }) {
