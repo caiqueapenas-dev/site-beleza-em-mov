@@ -3,12 +3,27 @@ import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 
 function PromotionSettings({ promoSettings, onSave, showNotification }) {
-  const [settings, setSettings] = useState(promoSettings);
+  const [settings, setSettings] = useState(promoSettings || {
+    banner: {
+      isActive: false,
+      text: '',
+      textColor: '#ffffff',
+      backgroundColor: '#000000',
+    },
+    coupons: [],
+  });
   const [newCoupon, setNewCoupon] = useState({
     code: '',
     discountPercent: '',
     isActive: true,
   });
+
+  // Atualiza o estado local quando promoSettings muda
+  useEffect(() => {
+    if (promoSettings) {
+      setSettings(promoSettings);
+    }
+  }, [promoSettings]);
 
   const handleBannerChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -65,7 +80,19 @@ function PromotionSettings({ promoSettings, onSave, showNotification }) {
   };
 
   const handleSaveChanges = () => {
-    onSave(settings);
+    // Garante que o banner tenha todos os campos necessários
+    const settingsToSave = {
+      ...settings,
+      banner: {
+        isActive: settings.banner?.isActive || false,
+        text: settings.banner?.text || '',
+        textColor: settings.banner?.textColor || '#ffffff',
+        backgroundColor: settings.banner?.backgroundColor || '#000000',
+      },
+      coupons: settings.coupons || [],
+    };
+    
+    onSave(settingsToSave);
     showNotification('Configurações de promoção salvas!', 'success');
   };
 

@@ -163,11 +163,16 @@ function AdminDashboardPage() {
 
   const handleSavePromotions = async (newSettings) => {
     try {
-      await fetch('/api/promotions', {
+      const response = await fetch('/api/promotions', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(newSettings),
       });
+      
+      if (!response.ok) {
+        throw new Error('Falha ao salvar promoções no servidor');
+      }
+      
       setPromoSettings(newSettings);
       showNotification('promoções salvas com sucesso!');
     } catch (error) {

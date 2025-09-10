@@ -9,11 +9,11 @@ function LojaHeader({ searchTerm, onSearchChange, promoBanner }) {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-30">
-      {promoBanner && promoBanner.isActive && (
+      {promoBanner?.isActive && promoBanner.text && (
         <div
           style={{
-            backgroundColor: promoBanner.backgroundColor,
-            color: promoBanner.textColor,
+            backgroundColor: promoBanner.backgroundColor || '#000000',
+            color: promoBanner.textColor || '#ffffff',
           }}
           className="py-2 text-center text-sm font-semibold"
         >

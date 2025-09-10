@@ -170,11 +170,33 @@ app.get('/api/promotions', async (req, res) => {
   }
 });
 app.post('/api/promotions', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+  
   const newSettings = req.body;
+  
+  // Valida a estrutura dos dados
+  if (!newSettings || typeof newSettings !== 'object') {
+    return res.status(400).json({ message: 'dados de promoção inválidos' });
+  }
+  
+  // Garante que o banner tenha a estrutura correta
+  const validatedSettings = {
+    banner: {
+      isActive: Boolean(newSettings.banner?.isActive),
+      text: String(newSettings.banner?.text || ''),
+      textColor: String(newSettings.banner?.textColor || '#ffffff'),
+      backgroundColor: String(newSettings.banner?.backgroundColor || '#000000'),
+    },
+    coupons: Array.isArray(newSettings.coupons) ? newSettings.coupons : [],
+  };
+  
   try {
     const database = await connectToDatabase();
     const promotionsCollection = database.collection('promotions');
-    await promotionsCollection.replaceOne({}, newSettings, { upsert: true });
+    await promotionsCollection.replaceOne({}, validatedSettings, { upsert: true });
     res.status(200).json({ message: 'promoções salvas com sucesso' });
   } catch (error) {
     res
