@@ -68,7 +68,13 @@ export function CartProvider({ children }) {
      product.desconto_percentual && product.desconto_percentual > 0
        ? product.price * (1 - product.desconto_percentual / 100)
        : product.price;
-   return [...prev, { ...product, price: finalPrice, size, quantity: 1 }];
+   return [...prev, { 
+     ...product, 
+     originalPrice: product.price, // Preserva o preço original
+     price: finalPrice, // Preço com desconto aplicado
+     size, 
+     quantity: 1 
+   }];
     });
     setIsCartOpen(true);
   };

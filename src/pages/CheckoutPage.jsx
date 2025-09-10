@@ -56,6 +56,15 @@ function CheckoutPage() {
     0,
   )
 
+  // Calcula o total original (sem descontos de produtos)
+  const originalSubtotal = cartItems.reduce(
+    (sum, item) => sum + (item.originalPrice || item.price) * item.quantity,
+    0,
+  )
+
+  // Calcula o desconto total dos produtos
+  const productDiscountAmount = originalSubtotal - subtotal
+
   const discountAmount = appliedCoupon
     ? subtotal * (appliedCoupon.discountPercent / 100)
     : 0
@@ -94,16 +103,35 @@ function CheckoutPage() {
     }
 
     const itemsList = cartItems
-      .map(
-        (item) =>
-          `- ${item.name} (Tam: ${item.size.toUpperCase()}, Qtd: ${
-            item.quantity
-          }) - ${new Intl.NumberFormat('pt-BR', {
+      .map((item) => {
+        const hasDiscount = item.desconto_percentual && item.desconto_percentual > 0;
+        const originalPrice = item.originalPrice || item.price;
+        const currentPrice = item.price;
+        const totalItemPrice = currentPrice * item.quantity;
+        const totalOriginalPrice = originalPrice * item.quantity;
+        
+        let itemText = `- ${item.name} (Tam: ${item.size.toUpperCase()}, Qtd: ${item.quantity})`;
+        
+        if (hasDiscount) {
+          itemText += `\n  Preço original: ${new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
-          }).format(item.price * item.quantity)}`,
-      )
-      .join('\n')
+          }).format(totalOriginalPrice)}`;
+          itemText += `\n  Desconto: -${item.desconto_percentual}%`;
+          itemText += `\n  Preço final: ${new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(totalItemPrice)}`;
+        } else {
+          itemText += ` - ${new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(totalItemPrice)}`;
+        }
+        
+        return itemText;
+      })
+      .join('\n\n')
 
     const message = `
 *Novo Pedido Realizado pelo Site!*
@@ -120,7 +148,14 @@ function CheckoutPage() {
 ${itemsList}
 
 -----------------------------------
-*Subtotal:* ${new Intl.NumberFormat('pt-BR', {
+${
+  productDiscountAmount > 0
+    ? `*Desconto nos Produtos:* -${new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(productDiscountAmount)}\n`
+    : ''
+}*Subtotal:* ${new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
     }).format(subtotal)}
@@ -246,27 +281,69 @@ Aguardando contato para finalizar a compra.
         <div className="bg-white p-8 rounded-lg shadow h-fit">
           <h2 className="text-2xl font-bold mb-6">Resumo do Pedido</h2>
           <div className="space-y-4 border-b pb-4">
-            {cartItems.map((item) => (
-              <div
-                key={`${item._id}-${item.size}`}
-                className="flex justify-between items-center text-sm"
-              >
-                <div>
-                  <p className="font-semibold">
-                    {item.name} ({item.size.toUpperCase()})
-                  </p>
-                  <p className="text-gray-600">Qtd: {item.quantity}</p>
+            {cartItems.map((item) => {
+              const hasDiscount = item.desconto_percentual && item.desconto_percentual > 0;
+              const originalPrice = item.originalPrice || item.price;
+              const currentPrice = item.price;
+              const totalItemPrice = currentPrice * item.quantity;
+              const totalOriginalPrice = originalPrice * item.quantity;
+              
+              return (
+                <div
+                  key={`${item._id}-${item.size}`}
+                  className="flex justify-between items-center text-sm"
+                >
+                  <div>
+                    <p className="font-semibold">
+                      {item.name} ({item.size.toUpperCase()})
+                    </p>
+                    <p className="text-gray-600">Qtd: {item.quantity}</p>
+                    {hasDiscount && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-semibold">
+                          -{item.desconto_percentual}% OFF
+                        </span>
+                        <span className="text-xs text-gray-500 line-through">
+                          {new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          }).format(totalOriginalPrice)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-green-600">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(totalItemPrice)}
+                    </p>
+                    {hasDiscount && (
+                      <p className="text-xs text-gray-500">
+                        Economia: {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        }).format(totalOriginalPrice - totalItemPrice)}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <p>
-                  {new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                  }).format(item.price * item.quantity)}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="space-y-2 py-4 border-b">
+            {productDiscountAmount > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <p>Desconto nos Produtos</p>
+                <p>
+                  -{new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  }).format(productDiscountAmount)}
+                </p>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <p>Subtotal</p>
               <p>

@@ -84,12 +84,27 @@ function Cart() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-between self-stretch">
-                  <p className="font-bold text-lg">
-                    {new Intl.NumberFormat('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    }).format(item.price * item.quantity)}
-                  </p>
+                  <div className="text-right">
+                    {item.desconto_percentual && item.desconto_percentual > 0 && (
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded text-xs">
+                          -{item.desconto_percentual}%
+                        </span>
+                        <span className="text-xs text-gray-500 line-through">
+                          {new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          }).format((item.originalPrice || item.price) * item.quantity)}
+                        </span>
+                      </div>
+                    )}
+                    <p className="font-bold text-lg text-green-600">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(item.price * item.quantity)}
+                    </p>
+                  </div>
                   <button
                     onClick={() => removeFromCart(item._id, item.size)}
                     className="text-gray-400 hover:text-red-500"
